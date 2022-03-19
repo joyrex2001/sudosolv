@@ -1,4 +1,6 @@
 github.com/hybridgroup/mjpeg v0.0.0-20140228234708-4680f319790e/go.mod h1:eagM805MRKrioHYuU7iKLUyFPVKqVV6um5DAvCkUtXs=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
+github.com/unixpickle/weakai v0.0.0-20170623211141-247102c87396 h1:CFkErmVS3DgtS/9sOvTIWy3a1f+2XiCVdYJzu4Ib5ok=
+github.com/unixpickle/weakai v0.0.0-20170623211141-247102c87396/go.mod h1:Ld234/Ojvp1zf+aYkXXmj9/6dhuVu7uDDfb6kNIr6/s=
 gocv.io/x/gocv v0.30.0 h1:r8RU4w0lfa65NdftHEeBtrDxCCLRDu1H7X3aI37IOtk=
 gocv.io/x/gocv v0.30.0/go.mod h1:oc6FvfYqfBp99p+yOEzs9tbYF9gOrAQSeL/dyIPefJU=

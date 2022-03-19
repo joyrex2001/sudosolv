@@ -1,18 +1,13 @@
 package main
 
 import (
-	"github.com/joyrex2001/sudosolv/internal/image"
+	"fmt"
 
-	"gocv.io/x/gocv"
+	"github.com/joyrex2001/sudosolv/internal/image"
 )
 
 func main() {
-	img := gocv.IMRead("_archive/IMG_6502.jpg", gocv.IMReadColor)
-	defer img.Close()
-
-	puzzle := image.GetPuzzle(img)
-	image.Display(puzzle)
-
-	cel := image.GetSudokuCell(puzzle, 3, 2)
-	image.Display(cel)
+	img := image.NewPuzzleImage("_archive/IMG_6502.jpg")
+	cel := img.GetSudokuCell(3, 2)
+	fmt.Printf("%v\n", cel)
 }
