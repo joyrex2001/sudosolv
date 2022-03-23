@@ -62,6 +62,8 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 
 	crop := gocv.NewMat()
 	gocv.WarpPerspective(img, &crop, pt, image.Point{width, width})
+	// Display(crop)
+
 	return crop
 }
 
@@ -85,6 +87,7 @@ func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
 
 	wb := gocv.NewMat()
 	gocv.Threshold(gr, &wb, 127, 255, 0)
+	// gocv.AdaptiveThreshold(gr, &wb, 1, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinary, 7, 8)
 	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 8)
 	// Display(wb)
 
