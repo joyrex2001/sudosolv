@@ -15,13 +15,13 @@ import (
 )
 
 var (
-	epochs    = flag.Int("epochs", 100, "Number of epochs to train for")
+	epochs    = flag.Int("epochs", 4, "Number of epochs to train for")
 	dataset   = flag.String("dataset", "train", "Which dataset to train on? Valid options are \"train\" or \"test\"")
 	batchsize = flag.Int("batchsize", 100, "Batch size")
 )
 
 const loc = "./internal/mnist/dataset/"
-const backup = "/tmp/mnist-trained"
+const backup = "/tmp/mnist-trained.bin"
 
 type sli struct {
 	start, end int

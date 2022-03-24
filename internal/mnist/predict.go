@@ -8,13 +8,16 @@ import (
 	"gorgonia.org/tensor"
 )
 
+// Predict will take a 28x28 image and return the integer it
+// thinks best matches the image. If no match is found, it will
+// return -1.
 func Predict(image []byte) int {
 	g := gorgonia.NewGraph()
 	x := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
 	m := newConvNet(g)
 
 	if err := m.load(backup); err != nil {
-		log.Fatalf("Failed: %v", err)
+		log.Fatalf("Failed loading network: %v", err)
 	}
 
 	if err := m.fwd(x); err != nil {

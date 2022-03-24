@@ -5,19 +5,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/errors"
 	"gorgonia.org/gorgonia"
 	"gorgonia.org/tensor"
 )
 
+// convnet is the internal representation of the cnn.
 type convnet struct {
 	g                  *gorgonia.ExprGraph
 	w0, w1, w2, w3, w4 *gorgonia.Node // weights. the number at the back indicates which layer it's used for
 	d0, d1, d2, d3     float64        // dropout probabilities
-
-	out     *gorgonia.Node
-	predVal gorgonia.Value
+	out                *gorgonia.Node
+	predVal            gorgonia.Value
 }
 
+// newConvNet will return an instance of the convulational neural network.
 func newConvNet(g *gorgonia.ExprGraph) *convnet {
 	w0 := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(32, 1, 3, 3), gorgonia.WithName("w0"), gorgonia.WithInit(gorgonia.GlorotN(1.0)))
 	w1 := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(64, 32, 3, 3), gorgonia.WithName("w1"), gorgonia.WithInit(gorgonia.GlorotN(1.0)))
@@ -31,7 +33,6 @@ func newConvNet(g *gorgonia.ExprGraph) *convnet {
 		w2: w2,
 		w3: w3,
 		w4: w4,
-
 		d0: 0.2,
 		d1: 0.2,
 		d2: 0.2,
@@ -39,10 +40,14 @@ func newConvNet(g *gorgonia.ExprGraph) *convnet {
 	}
 }
 
+// learnables will return the nodes that contain the tensors with the
+// trained values.
 func (m *convnet) learnables() gorgonia.Nodes {
 	return gorgonia.Nodes{m.w0, m.w1, m.w2, m.w3, m.w4}
 }
 
+// save will save the current values of the learnables to a file
+// with given filename.
 func (m *convnet) save(fname string) error {
 	f, err := os.Create(fname)
 	if err != nil {
@@ -50,14 +55,17 @@ func (m *convnet) save(fname string) error {
 	}
 	defer f.Close()
 	enc := gob.NewEncoder(f)
-	for _, node := range m.learnables() {
-		if err := enc.Encode(node.Value()); err != nil {
+	for _, l := range m.learnables() {
+		t := l.Value().(*tensor.Dense).Data()
+		if err := enc.Encode(t); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
+// load will instantiate the learnables with the values that are
+// stored in a file with given filename.
 func (m *convnet) load(fname string) error {
 	f, err := os.Open(fname)
 	if err != nil {
@@ -65,14 +73,21 @@ func (m *convnet) load(fname string) error {
 	}
 	defer f.Close()
 	dec := gob.NewDecoder(f)
-	for _, node := range m.learnables() {
-		if err := dec.Decode(node); err != nil {
+	for _, l := range m.learnables() {
+		t := l.Value().(*tensor.Dense).Data().([]float64)
+		var data []float64
+		if err := dec.Decode(&data); err != nil {
 			return err
 		}
+		if len(data) != len(t) {
+			return errors.Errorf("Unserialized length %d. Expected length %d", len(data), len(t))
+		}
+		copy(t, data)
 	}
 	return nil
 }
 
+// fwd will calculate the graph instantiated with given node.
 func (m *convnet) fwd(x *gorgonia.Node) (err error) {
 	var c0, c1, c2, fc *gorgonia.Node
 	var a0, a1, a2, a3 *gorgonia.Node
@@ -147,5 +162,6 @@ func (m *convnet) fwd(x *gorgonia.Node) (err error) {
 	}
 	m.out, err = gorgonia.SoftMax(out)
 	gorgonia.Read(m.out, &m.predVal)
+
 	return
 }

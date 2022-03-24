@@ -10,7 +10,7 @@ import (
 func main() {
 	img := image.NewPuzzleImage("_archive/IMG_6502.jpg")
 	cel := img.GetSudokuCell(3, 2)
-	// fmt.Printf("%v\n", cel)
+	fmt.Printf("%v\n", cel)
 	// mnist.Train()
 	res := mnist.Predict(cel)
 	fmt.Printf("res = %d\n", res)
