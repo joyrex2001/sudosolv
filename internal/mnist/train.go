@@ -21,7 +21,7 @@ var (
 )
 
 const loc = "./internal/mnist/dataset/"
-const backup = "/tmp/mnist-trained.bin"
+const backup = "./internal/mnist/dataset/mnist-trained.bin"
 
 type sli struct {
 	start, end int

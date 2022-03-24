@@ -160,8 +160,10 @@ func (m *convnet) fwd(x *gorgonia.Node) (err error) {
 	if out, err = gorgonia.Mul(l3, m.w4); err != nil {
 		return fmt.Errorf("Unable to multiply l3 and w4: %s", err)
 	}
-	m.out, err = gorgonia.SoftMax(out)
+	if m.out, err = gorgonia.SoftMax(out); err != nil {
+		return fmt.Errorf("Unable to SoftMax: %s", err)
+	}
 	gorgonia.Read(m.out, &m.predVal)
 
-	return
+	return nil
 }
