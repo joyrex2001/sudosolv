@@ -3,7 +3,6 @@ module github.com/joyrex2001/sudosolv
 go 1.18
 
 require (
-	github.com/pkg/errors v0.9.1
 	gocv.io/x/gocv v0.30.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gorgonia.org/gorgonia v0.9.17
@@ -21,6 +20,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/leesper/go_rng v0.0.0-20190531154944-a612b043e353 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/xtgo/set v1.0.0 // indirect
 	go4.org/unsafe/assume-no-moving-gc v0.0.0-20211027215541-db492cf91b37 // indirect

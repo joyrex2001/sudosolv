@@ -3,11 +3,11 @@ package mnist
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"gorgonia.org/tensor"
 )
 
@@ -45,11 +45,11 @@ func loadMnist(typ, loc string, as tensor.Dtype) (inputs, targets tensor.Tensor,
 	var imageData []RawImage
 
 	if labelData, err = readLabelFile(os.Open(labelFile)); err != nil {
-		return nil, nil, errors.Wrap(err, "Unable to read Labels")
+		return nil, nil, fmt.Errorf("Unable to read Labels: %s", err)
 	}
 
 	if imageData, err = readImageFile(os.Open(dataFile)); err != nil {
-		return nil, nil, errors.Wrap(err, "Unable to read image data")
+		return nil, nil, fmt.Errorf("Unable to read image data: %s", err)
 	}
 
 	inputs = prepareX(imageData, as)

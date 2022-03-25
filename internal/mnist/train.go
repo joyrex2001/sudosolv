@@ -16,7 +16,7 @@ import (
 const (
 	dataset = "train" // valid options are "train" or "test"
 	bs      = 100     // batchsize
-	loc     = "./internal/mnist/dataset/"
+	dataloc = "./internal/mnist/dataset/"
 )
 
 type sli struct {
@@ -29,42 +29,34 @@ func (s sli) Step() int  { return 1 }
 
 // Train will train a mnist network for given epochs and write the output
 // to the given output filename.
-func Train(output string, epochs int) {
+func Train(output string, epochs int) error {
 	rand.Seed(1337)
 
 	var inputs, targets tensor.Tensor
 	var err error
 
-	if inputs, targets, err = loadMnist(dataset, loc, tensor.Float64); err != nil {
-		log.Fatal(err)
+	if inputs, targets, err = loadMnist(dataset, dataloc, tensor.Float64); err != nil {
+		return err
 	}
 
-	// the data is in (numExamples, 784).
-	// In order to use a convnet, we need to massage the data
-	// into this format (batchsize, numberOfChannels, height, width).
-	//
-	// This translates into (numExamples, 1, 28, 28).
-	//
-	// This is because the convolution operators actually understand height and width.
-	//
-	// The 1 indicates that there is only one channel (MNIST data is black and white).
 	numExamples := inputs.Shape()[0]
-
 	if err := inputs.Reshape(numExamples, 1, 28, 28); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
 	g := gorgonia.NewGraph()
 	x := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(bs, 1, 28, 28), gorgonia.WithName("x"))
 	y := gorgonia.NewMatrix(g, tensor.Float64, gorgonia.WithShape(bs, 10), gorgonia.WithName("y"))
-	m := newConvNet(g)
-	if err = m.fwd(x); err != nil {
-		log.Fatalf("%+v", err)
+
+	m := newNetwork(g)
+	if err := m.fwd(x); err != nil {
+		return err
 	}
+
 	losses := gorgonia.Must(gorgonia.HadamardProd(m.out, y))
 	cost := gorgonia.Must(gorgonia.Mean(losses))
 	cost = gorgonia.Must(gorgonia.Neg(cost))
 
-	// we wanna track costs
 	var costVal gorgonia.Value
 	gorgonia.Read(cost, &costVal)
 
@@ -97,20 +89,20 @@ func Train(output string, epochs int) {
 
 			var xVal, yVal tensor.Tensor
 			if xVal, err = inputs.Slice(sli{start, end}); err != nil {
-				log.Fatal("Unable to slice x")
+				return fmt.Errorf("Unable to slice x: %s", err)
 			}
 
 			if yVal, err = targets.Slice(sli{start, end}); err != nil {
-				log.Fatal("Unable to slice y")
+				return fmt.Errorf("Unable to slice y: %s", err)
 			}
 			if err = xVal.(*tensor.Dense).Reshape(bs, 1, 28, 28); err != nil {
-				log.Fatalf("Unable to reshape %v", err)
+				return fmt.Errorf("Unable to reshape: %s", err)
 			}
 
 			gorgonia.Let(x, xVal)
 			gorgonia.Let(y, yVal)
-			if err = vm.RunAll(); err != nil {
-				log.Fatalf("Failed at epoch  %d: %v", i, err)
+			if err := vm.RunAll(); err != nil {
+				return fmt.Errorf("Failed at epoch %d: %s", i, err)
 			}
 			solver.Step(gorgonia.NodesToValueGrads(m.learnables()))
 			vm.Reset()
@@ -118,7 +110,6 @@ func Train(output string, epochs int) {
 		}
 		log.Printf("Epoch %d | cost %v", i, costVal)
 	}
-	if err := m.save(output); err != nil {
-		log.Fatal(err)
-	}
+
+	return m.save(output)
 }
