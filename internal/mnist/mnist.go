@@ -18,17 +18,17 @@ type RawImage []byte
 // Label is a digit label in 0 to 9
 type Label uint8
 
-// Load loads the mnist data into two tensors
+// loadMnist loads the mnist data into two tensors
 //
 // typ can be "train", "test"
 //
 // loc represents where the mnist files are held
-func Load(typ, loc string, as tensor.Dtype) (inputs, targets tensor.Tensor, err error) {
+func loadMnist(typ, loc string, as tensor.Dtype) (inputs, targets tensor.Tensor, err error) {
 	const (
-		trainLabel = "train-labels.idx1-ubyte"
-		trainData  = "train-images.idx3-ubyte"
-		testLabel  = "t10k-labels.idx1-ubyte"
-		testData   = "t10k-images.idx3-ubyte"
+		trainLabel = "train-labels-idx1-ubyte"
+		trainData  = "train-images-idx3-ubyte"
+		testLabel  = "t10k-labels-idx1-ubyte"
+		testData   = "t10k-images-idx3-ubyte"
 	)
 
 	var labelFile, dataFile string

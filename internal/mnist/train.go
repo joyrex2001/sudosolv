@@ -1,7 +1,6 @@
 package mnist
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -14,14 +13,11 @@ import (
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
-var (
-	epochs    = flag.Int("epochs", 4, "Number of epochs to train for")
-	dataset   = flag.String("dataset", "train", "Which dataset to train on? Valid options are \"train\" or \"test\"")
-	batchsize = flag.Int("batchsize", 100, "Batch size")
+const (
+	dataset = "train" // valid options are "train" or "test"
+	bs      = 100     // batchsize
+	loc     = "./internal/mnist/dataset/"
 )
-
-const loc = "./internal/mnist/dataset/"
-const backup = "./internal/mnist/dataset/mnist-trained.bin"
 
 type sli struct {
 	start, end int
@@ -31,15 +27,15 @@ func (s sli) Start() int { return s.start }
 func (s sli) End() int   { return s.end }
 func (s sli) Step() int  { return 1 }
 
-func Train() {
-	flag.Parse()
+// Train will train a mnist network for given epochs and write the output
+// to the given output filename.
+func Train(output string, epochs int) {
 	rand.Seed(1337)
 
 	var inputs, targets tensor.Tensor
 	var err error
 
-	trainOn := *dataset
-	if inputs, targets, err = Load(trainOn, loc, tensor.Float64); err != nil {
+	if inputs, targets, err = loadMnist(dataset, loc, tensor.Float64); err != nil {
 		log.Fatal(err)
 	}
 
@@ -53,8 +49,6 @@ func Train() {
 	//
 	// The 1 indicates that there is only one channel (MNIST data is black and white).
 	numExamples := inputs.Shape()[0]
-	bs := *batchsize
-	// todo - check bs not 0
 
 	if err := inputs.Reshape(numExamples, 1, 28, 28); err != nil {
 		log.Fatal(err)
@@ -87,7 +81,7 @@ func Train() {
 	bar.SetRefreshRate(time.Second)
 	bar.SetMaxWidth(80)
 
-	for i := 0; i < *epochs; i++ {
+	for i := 0; i < epochs; i++ {
 		bar.Prefix(fmt.Sprintf("Epoch %d", i))
 		bar.Set(0)
 		bar.Start()
@@ -124,7 +118,7 @@ func Train() {
 		}
 		log.Printf("Epoch %d | cost %v", i, costVal)
 	}
-	if err := m.save(backup); err != nil {
+	if err := m.save(output); err != nil {
 		log.Fatal(err)
 	}
 }

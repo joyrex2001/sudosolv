@@ -16,7 +16,7 @@ type convnet struct {
 	w0, w1, w2, w3, w4 *gorgonia.Node // weights. the number at the back indicates which layer it's used for
 	d0, d1, d2, d3     float64        // dropout probabilities
 	out                *gorgonia.Node
-	predVal            gorgonia.Value
+	pred               gorgonia.Value
 }
 
 // newConvNet will return an instance of the convulational neural network.
@@ -163,7 +163,15 @@ func (m *convnet) fwd(x *gorgonia.Node) (err error) {
 	if m.out, err = gorgonia.SoftMax(out); err != nil {
 		return fmt.Errorf("Unable to SoftMax: %s", err)
 	}
-	gorgonia.Read(m.out, &m.predVal)
+	gorgonia.Read(m.out, &m.pred)
 
 	return nil
+}
+
+// output will return the output of the graph after it has run.
+func (m *convnet) output() ([]float64, error) {
+	if m.pred == nil {
+		return nil, fmt.Errorf("No output available")
+	}
+	return m.pred.Data().([]float64), nil
 }
