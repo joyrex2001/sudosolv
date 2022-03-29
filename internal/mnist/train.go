@@ -53,18 +53,27 @@ func Train(output string, epochs int) error {
 		return err
 	}
 
-	losses := gorgonia.Must(gorgonia.HadamardProd(m.out, y))
+	if err := m.load(output); err != nil {
+		log.Printf("starting fresh, error loading previous snapshot: %s", err)
+	}
+
+	losses, err := gorgonia.HadamardProd(m.out, y)
+	if err != nil {
+		return err
+	}
 	cost := gorgonia.Must(gorgonia.Mean(losses))
 	cost = gorgonia.Must(gorgonia.Neg(cost))
 
 	var costVal gorgonia.Value
 	gorgonia.Read(cost, &costVal)
 
-	prog, locMap, _ := gorgonia.Compile(g)
-	log.Printf("%v", prog)
+	if _, err = gorgonia.Grad(cost, m.learnables()...); err != nil {
+		return err
+	}
 
-	vm := gorgonia.NewTapeMachine(g, gorgonia.WithPrecompiled(prog, locMap), gorgonia.BindDualValues(m.learnables()...))
-	solver := gorgonia.NewRMSPropSolver(gorgonia.WithBatchSize(float64(bs)))
+	vm := gorgonia.NewTapeMachine(g, gorgonia.BindDualValues(m.learnables()...))
+	// solver := gorgonia.NewRMSPropSolver(gorgonia.WithBatchSize(float64(bs)))
+	solver := gorgonia.NewAdamSolver(gorgonia.WithBatchSize(float64(bs)))
 	defer vm.Close()
 
 	batches := numExamples / bs
@@ -91,12 +100,12 @@ func Train(output string, epochs int) error {
 			if xVal, err = inputs.Slice(sli{start, end}); err != nil {
 				return fmt.Errorf("Unable to slice x: %s", err)
 			}
+			if err = xVal.(*tensor.Dense).Reshape(bs, 1, 28, 28); err != nil {
+				return fmt.Errorf("Unable to reshape: %s", err)
+			}
 
 			if yVal, err = targets.Slice(sli{start, end}); err != nil {
 				return fmt.Errorf("Unable to slice y: %s", err)
-			}
-			if err = xVal.(*tensor.Dense).Reshape(bs, 1, 28, 28); err != nil {
-				return fmt.Errorf("Unable to reshape: %s", err)
 			}
 
 			gorgonia.Let(x, xVal)
@@ -104,12 +113,18 @@ func Train(output string, epochs int) error {
 			if err := vm.RunAll(); err != nil {
 				return fmt.Errorf("Failed at epoch %d: %s", i, err)
 			}
-			solver.Step(gorgonia.NodesToValueGrads(m.learnables()))
+			if err := solver.Step(gorgonia.NodesToValueGrads(m.learnables())); err != nil {
+				return fmt.Errorf("Unable to solve: %s", err)
+			}
 			vm.Reset()
 			bar.Increment()
 		}
 		log.Printf("Epoch %d | cost %v", i, costVal)
+		if err := m.save(output); err != nil {
+			return err
+		}
 	}
+	bar.Finish()
 
-	return m.save(output)
+	return nil
 }

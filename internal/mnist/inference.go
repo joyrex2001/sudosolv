@@ -12,24 +12,24 @@ type Inference struct {
 	vm gorgonia.VM
 	x  *gorgonia.Node
 	g  *gorgonia.ExprGraph
-	m  *network
+	nn *network
 }
 
 // NewInference will return a new inference object with the given
-// trained network file to handle predictions.
-func NewInference(network string) (*Inference, error) {
+// trained weights file to handle predictions.
+func NewInference(weights string) (*Inference, error) {
 	in := &Inference{}
 	in.g = gorgonia.NewGraph()
-	in.x = gorgonia.NewTensor(in.g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28))
-	in.m = newNetwork(in.g)
-	in.m.disableDropOut()
+	in.x = gorgonia.NewTensor(in.g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
+	in.nn = newNetwork(in.g)
+	in.nn.disableDropOut()
 
-	if err := in.m.load(network); err != nil {
-		return nil, fmt.Errorf("Failed loading network: %v", err)
+	if err := in.nn.fwd(in.x); err != nil {
+		return nil, fmt.Errorf("Failed: %v", err)
 	}
 
-	if err := in.m.fwd(in.x); err != nil {
-		return nil, fmt.Errorf("Failed: %v", err)
+	if err := in.nn.load(weights); err != nil {
+		return nil, fmt.Errorf("Failed loading weights: %v", err)
 	}
 
 	in.vm = gorgonia.NewTapeMachine(in.g)
@@ -48,12 +48,26 @@ func (in *Inference) Predict(image []byte) (int, error) {
 		return -1, fmt.Errorf("Unable to reshape: %s", err)
 	}
 
-	gorgonia.Let(in.x, x)
+	//---------------------------------------------------------------
+	inputs, labels, _ := loadMnist("test", dataloc, tensor.Float64)
+	numExamples := inputs.Shape()[0]
+	inputs.Reshape(numExamples, 1, 28, 28)
+	xm, _ := inputs.Slice(sli{6, 7})
+	xm.(*tensor.Dense).Reshape(1, 1, 28, 28)
+	l, _ := labels.Slice(sli{6, 7})
+	fmt.Printf("label[0]: %#v\n", l)
+	// fmt.Printf("input[0]: %#v\n", inp)
+	//---------------------------------------------------------------
+
+	if err := gorgonia.Let(in.x, xm); err != nil {
+		return -1, fmt.Errorf("Error setting inputs: %s", err)
+	}
+
 	if err := in.vm.RunAll(); err != nil {
 		return -1, fmt.Errorf("Failed running expression: %s", err)
 	}
 
-	y, err := in.m.output()
+	y, err := in.nn.output()
 	if err != nil {
 		return -1, fmt.Errorf("Unable predict: %s", err)
 	}
@@ -67,8 +81,8 @@ func (in *Inference) Predict(image []byte) (int, error) {
 		}
 	}
 
-	// fmt.Printf("digit: %v\n", x.Data().([]float64))
-	// fmt.Printf("outs: %v\n\n\n", y)
+	// fmt.Printf("digit: %#v\n", x)
+	fmt.Printf("outs: %v\n", y)
 
 	return res, nil
 }
