@@ -48,18 +48,7 @@ func (in *Inference) Predict(image []byte) (int, error) {
 		return -1, fmt.Errorf("Unable to reshape: %s", err)
 	}
 
-	//---------------------------------------------------------------
-	inputs, labels, _ := loadMnist("test", dataloc, tensor.Float64)
-	numExamples := inputs.Shape()[0]
-	inputs.Reshape(numExamples, 1, 28, 28)
-	xm, _ := inputs.Slice(sli{6, 7})
-	xm.(*tensor.Dense).Reshape(1, 1, 28, 28)
-	l, _ := labels.Slice(sli{6, 7})
-	fmt.Printf("label[0]: %#v\n", l)
-	// fmt.Printf("input[0]: %#v\n", inp)
-	//---------------------------------------------------------------
-
-	if err := gorgonia.Let(in.x, xm); err != nil {
+	if err := gorgonia.Let(in.x, x); err != nil {
 		return -1, fmt.Errorf("Error setting inputs: %s", err)
 	}
 
@@ -80,9 +69,6 @@ func (in *Inference) Predict(image []byte) (int, error) {
 			ms = s
 		}
 	}
-
-	// fmt.Printf("digit: %#v\n", x)
-	fmt.Printf("outs: %v\n", y)
 
 	return res, nil
 }

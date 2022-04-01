@@ -72,8 +72,7 @@ func Train(output string, epochs int) error {
 	}
 
 	vm := gorgonia.NewTapeMachine(g, gorgonia.BindDualValues(m.learnables()...))
-	// solver := gorgonia.NewRMSPropSolver(gorgonia.WithBatchSize(float64(bs)))
-	solver := gorgonia.NewAdamSolver(gorgonia.WithBatchSize(float64(bs)))
+	solver := gorgonia.NewRMSPropSolver(gorgonia.WithBatchSize(float64(bs)))
 	defer vm.Close()
 
 	batches := numExamples / bs

@@ -1,12 +1,12 @@
 module github.com/joyrex2001/sudosolv
 
-go 1.18
+go 1.17
 
 require (
 	gocv.io/x/gocv v0.30.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
-	gorgonia.org/gorgonia v0.9.17
-	gorgonia.org/tensor v0.9.21
+	gorgonia.org/gorgonia v0.9.18-0.20220328013401-8b40b1cc5eed
+	gorgonia.org/tensor v0.9.22
 )
 
 require (
@@ -24,10 +24,10 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/xtgo/set v1.0.0 // indirect
 	go4.org/unsafe/assume-no-moving-gc v0.0.0-20211027215541-db492cf91b37 // indirect
-	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
+	golang.org/x/sys v0.0.0-20220330033206-e17cdc41300f // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gonum.org/v1/gonum v0.11.0 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 	gorgonia.org/cu v0.9.4 // indirect
 	gorgonia.org/dawson v1.2.0 // indirect
 	gorgonia.org/vecf32 v0.9.0 // indirect
