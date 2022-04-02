@@ -102,3 +102,28 @@ func sortCoords(box gocv.PointVector) gocv.PointVector {
 	tb.Append(br)
 	return tb
 }
+
+// biggestBoundingBox will return the biggest bounding box that
+// is present in the given img matrix.
+func biggestBoundingBox(img gocv.Mat) image.Rectangle {
+	res := image.Rectangle{}
+	cn := gocv.FindContours(img, gocv.RetrievalList, gocv.ChainApproxSimple)
+	for i := 0; i < cn.Size(); i++ {
+		r := gocv.BoundingRect(cn.At(i))
+		if r.Size().X*r.Size().Y > res.Size().X*res.Size().Y {
+			res = r
+		}
+	}
+	return res
+}
+
+// addMargin adds given margin to the provided rectangle, making
+// the rectangle area a bit bigger.
+func addMargin(box image.Rectangle, margin int) image.Rectangle {
+	return image.Rect(
+		box.Min.X-margin,
+		box.Min.Y-margin,
+		box.Max.X+margin,
+		box.Max.Y+margin,
+	)
+}

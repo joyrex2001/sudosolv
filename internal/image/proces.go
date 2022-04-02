@@ -67,29 +67,42 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 	return crop
 }
 
-// GetSudokuCell will return 28x28 bytes for a given x,y of
-// a cell within a sudoku puzzle.
-func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
-	margin := int((width / 9) * 0.85)
+// getSudokuCellArea will return a rectangle with coordinates in
+// which the given sudoko cell is present within the image.
+func getSudokuCellArea(x, y int) image.Rectangle {
+	margin := int((width / 9) * 0.1)
 	px := (width/9)*x + margin
 	py := (width/9)*y + margin
 	w := width/9 - 2*margin
-	crop := pi.img.Region(image.Rect(px, py, px+w, py+w))
+	return image.Rect(px, py, px+w, py+w)
+}
 
-	res := gocv.NewMat()
-	gocv.Resize(crop, &res, image.Point{28, 28}, 0, 0, gocv.InterpolationDefault)
+// GetSudokuCell will return 28x28 bytes for a given x,y of
+// a cell within a sudoku puzzle.
+func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
+	area := getSudokuCellArea(x, y)
+	crop := pi.img.Region(area)
 
+	// crop number
 	gr := gocv.NewMat()
-	gocv.CvtColor(res, &gr, gocv.ColorBGRToGray)
+	thres := gocv.NewMat()
+	gocv.CvtColor(crop, &gr, gocv.ColorBGRToGray)
+	gocv.AdaptiveThreshold(gr, &thres, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 8)
+	bx := biggestBoundingBox(thres)
+	if bx.Size().X*bx.Size().Y > 10 {
+		bx = addMargin(bx, 1)
+		crop = crop.Region(bx)
+	}
 
-	bl := gocv.NewMat()
-	gocv.GaussianBlur(gr, &bl, image.Point{}, 5, 5, gocv.BorderDefault)
-
+	// convert to hard black and white
 	wb := gocv.NewMat()
-	gocv.Threshold(gr, &wb, 127, 255, 0)
-	// gocv.AdaptiveThreshold(gr, &wb, 1, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinary, 7, 8)
-	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 8)
-	// Display(wb)
+	gocv.CvtColor(crop, &gr, gocv.ColorBGRToGray)
+	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 31, 10)
 
-	return wb.ToBytes()
+	// crop to 28x28
+	res := gocv.NewMat()
+	gocv.Resize(wb, &res, image.Point{28, 28}, 0, 0, gocv.InterpolationDefault)
+	// Display(res)
+
+	return res.ToBytes()
 }

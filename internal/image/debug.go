@@ -2,9 +2,14 @@ package image
 
 import (
 	"fmt"
+	"runtime"
 
 	"gocv.io/x/gocv"
 )
+
+func init() {
+	runtime.LockOSThread()
+}
 
 // Display will display the given OpenCV matrix in a new window
 // and will wait until a keypres.
