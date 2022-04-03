@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-
-	"gorgonia.org/gorgonia"
-	"gorgonia.org/tensor"
-
 	"time"
 
 	"gopkg.in/cheggaaa/pb.v1"
+	"gorgonia.org/gorgonia"
+	"gorgonia.org/tensor"
 )
 
 const (
-	bs = 1 // batchsize
+	bs = 100 // batchsize
 )
 
 type sli struct {
@@ -32,7 +30,7 @@ func Train(output string, epochs int) error {
 
 	var err error
 
-	inx, iny := GenXY()
+	inx, iny := GenXY(60000)
 	inputs := X2Tensor(inx)
 	targets := Y2Tensor(iny)
 

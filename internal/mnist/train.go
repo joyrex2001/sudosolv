@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-
-	"gorgonia.org/gorgonia"
-	"gorgonia.org/tensor"
-
 	"time"
 
 	"gopkg.in/cheggaaa/pb.v1"
+	"gorgonia.org/gorgonia"
+	"gorgonia.org/tensor"
 )
 
 const (

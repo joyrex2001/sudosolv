@@ -10,7 +10,7 @@ import (
 const (
 	// network = "./internal/mnist/dataset/mnist-trained.bin"
 	network = "./internal/prinist/trained.bin"
-	epochs  = 5
+	epochs  = 1
 )
 
 func main() {

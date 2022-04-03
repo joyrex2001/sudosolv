@@ -5,45 +5,58 @@ import (
 	"image"
 	"image/color"
 	"io/ioutil"
+	"math/rand"
 
 	"github.com/golang/freetype"
+	"golang.org/x/image/draw"
 	"gorgonia.org/tensor"
 )
 
+const (
+	width  = 28
+	height = 28
+)
+
 var (
-	width    = 28
-	height   = 28
-	fontsize = float64(37.0)
-	fonts    = []string{
+	fonts = []string{
 		"/Library/Fonts/Arial Unicode.ttf",
 		"/System/Library/Fonts/NewYork.ttf",
 		"/System/Library/Fonts/SFCompact.ttf",
 		"/System/Library/Fonts/SFCompactRounded.ttf",
 		"/System/Library/Fonts/SFNS.ttf",
 		"/System/Library/Fonts/SFNSRounded.ttf",
-		"/System/Library/Fonts/Symbol.ttf",
 	}
 )
 
 // Gen will create an 28x28 byte buffer with the given number printed
 // with the given ttf font.
 func Gen(font string, number int) []byte {
-	img := image.NewGray(image.Rect(0, 0, width, height))
-
 	b, _ := ioutil.ReadFile(font)
 	f, _ := freetype.ParseFont(b)
-
 	ctx := freetype.NewContext()
+	img := image.NewGray(image.Rect(0, 0, 256, 256))
 	ctx.SetFont(f)
-	ctx.SetFontSize(fontsize)
 	ctx.SetClip(img.Bounds())
 	ctx.SetDst(img)
-	ctx.SetSrc(image.NewUniform(color.RGBA{255, 255, 255, 255}))
-	pt := freetype.Pt(5, -10+int(ctx.PointToFixed(fontsize)>>6))
-	ctx.DrawString(fmt.Sprintf("%d", number), pt)
 
+	// print number at random pos with random size and color
+	ctx.SetSrc(image.NewUniform(color.RGBA{
+		uint8(rand.Intn(50) + 205),
+		uint8(rand.Intn(50) + 205),
+		uint8(rand.Intn(50) + 205),
+		uint8(rand.Intn(50) + 205),
+	}))
+	ctx.SetFontSize(float64(rand.Intn(50) + 200))
+	ctx.DrawString(
+		fmt.Sprintf("%d", number),
+		freetype.Pt(rand.Intn(128), 256-rand.Intn(100)),
+	)
+
+	// resize to 28x28
+	res := image.NewGray(image.Rect(0, 0, width, height))
+	draw.NearestNeighbor.Scale(res, res.Rect, img, img.Bounds(), draw.Over, nil)
 	buf := []byte{}
-	for _, x := range img.Pix {
+	for _, x := range res.Pix {
 		buf = append(buf, x)
 	}
 
@@ -60,7 +73,7 @@ func Gen(font string, number int) []byte {
 
 // GenXY will create both input and output data for various variations
 // of fonts and numbers.
-func GenXY() ([]byte, []float64) {
+func GenXY(size int) ([]byte, []float64) {
 	x := []byte{}
 	y := []float64{}
 	y_ := map[int][]float64{}
@@ -69,11 +82,11 @@ func GenXY() ([]byte, []float64) {
 		m[i] = 0.9
 		y_[i] = m
 	}
-	for _, f := range fonts {
-		for i := 0; i <= 9; i++ {
-			x = append(x, Gen(f, i)...)
-			y = append(y, y_[i]...)
-		}
+	for i := 0; i < size; i++ {
+		f := fonts[rand.Intn(len(fonts))]
+		n := rand.Intn(10)
+		x = append(x, Gen(f, n)...)
+		y = append(y, y_[n]...)
 	}
 	return x, y
 }
