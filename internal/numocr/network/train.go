@@ -1,4 +1,4 @@
-package mnist
+package network
 
 import (
 	"fmt"
@@ -9,12 +9,12 @@ import (
 	"gopkg.in/cheggaaa/pb.v1"
 	"gorgonia.org/gorgonia"
 	"gorgonia.org/tensor"
+
+	"github.com/joyrex2001/sudosolv/internal/numocr/dataset"
 )
 
 const (
-	dataset = "train" // valid options are "train" or "test"
-	bs      = 100     // batchsize
-	dataloc = "./internal/mnist/dataset/"
+	bs = 100 // batchsize
 )
 
 type sli struct {
@@ -25,15 +25,16 @@ func (s sli) Start() int { return s.start }
 func (s sli) End() int   { return s.end }
 func (s sli) Step() int  { return 1 }
 
-// Train will train a mnist network for given epochs and write the output
-// to the given output filename.
-func Train(output string, epochs int) error {
+// Train will train a mnist network for given dataset object.
+func Train(dataset dataset.Dataset) error {
 	rand.Seed(1337)
 
-	var inputs, targets tensor.Tensor
 	var err error
 
-	if inputs, targets, err = loadMnist(dataset, dataloc, tensor.Float64); err != nil {
+	output := dataset.WeightsFile()
+	epochs := dataset.Epochs()
+	inputs, targets, err := dataset.XY()
+	if err != nil {
 		return err
 	}
 
@@ -51,9 +52,9 @@ func Train(output string, epochs int) error {
 		return err
 	}
 
-	if err := m.load(output); err != nil {
-		log.Printf("starting fresh, error loading previous snapshot: %s", err)
-	}
+	// if err := m.load(output); err != nil {
+	// 	log.Printf("starting fresh, error loading previous snapshot: %s", err)
+	// }
 
 	losses, err := gorgonia.HadamardProd(m.out, y)
 	if err != nil {

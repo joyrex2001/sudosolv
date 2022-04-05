@@ -14,3 +14,5 @@ train-*idx?-ubyte*
 t10k-*idx?-ubyte*
 mnist-trained*.bin
 trained.bin
+freefont-*
+freefont-ttf-*

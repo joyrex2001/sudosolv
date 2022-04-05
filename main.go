@@ -4,22 +4,19 @@ import (
 	"fmt"
 
 	"github.com/joyrex2001/sudosolv/internal/image"
-	"github.com/joyrex2001/sudosolv/internal/prinist"
-)
-
-const (
-	// network = "./internal/mnist/dataset/mnist-trained.bin"
-	network = "./internal/prinist/trained.bin"
-	epochs  = 1
+	"github.com/joyrex2001/sudosolv/internal/numocr/dataset/mnist"
+	"github.com/joyrex2001/sudosolv/internal/numocr/network"
 )
 
 func main() {
-	if err := prinist.Train(network, epochs); err != nil {
+	dataset := mnist.NewMnistDataset()
+
+	if err := network.Train(dataset); err != nil {
 		fmt.Printf("error = %s\n", err)
 		return
 	}
 
-	inf, err := prinist.NewInference(network)
+	inf, err := network.NewInference(dataset)
 	if err != nil {
 		fmt.Printf("error = %s\n", err)
 		return

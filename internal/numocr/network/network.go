@@ -1,4 +1,4 @@
-package prinist
+package network
 
 import (
 	"encoding/gob"
