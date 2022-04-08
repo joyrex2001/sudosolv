@@ -6,6 +6,9 @@ import (
 	"image/color"
 	"io/ioutil"
 	"math/rand"
+	"path"
+	"regexp"
+	"strings"
 
 	"github.com/golang/freetype"
 	"github.com/joyrex2001/sudosolv/internal/numocr/dataset"
@@ -18,55 +21,80 @@ const (
 	height = 28
 )
 
-var (
-	fonts = []string{
-		"./internal/prinist/fonts/freefont-20100919/FreeMono.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeMonoBold.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeMonoBoldOblique.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeMonoOblique.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSans.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSansBold.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSansBoldOblique.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSansOblique.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSerif.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSerifBold.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSerifBoldItalic.ttf",
-		"./internal/prinist/fonts/freefont-20100919/FreeSerifItalic.ttf",
+// Fonts is a list of fonts that are available for training.
+var Fonts = []string{
+	"./internal/prinist/fonts/freefont-20100919/FreeMono.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeMonoBold.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeMonoBoldOblique.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeMonoOblique.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSans.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSansBold.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSansBoldOblique.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSansOblique.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSerif.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSerifBold.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSerifBoldItalic.ttf",
+	"./internal/prinist/fonts/freefont-20100919/FreeSerifItalic.ttf",
 
-		"/System/Library/Fonts/Supplemental/Arial.ttf",
-		"/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-		"/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
-		"/System/Library/Fonts/Supplemental/Times New Roman.ttf",
-		"/System/Library/Fonts/Supplemental/Verdana Bold.ttf",
-		"/System/Library/Fonts/Supplemental/Verdana.ttf",
-	}
-)
+	"/System/Library/Fonts/Supplemental/Arial.ttf",
+	"/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+	"/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
+	"/System/Library/Fonts/Supplemental/Times New Roman.ttf",
+	"/System/Library/Fonts/Supplemental/Verdana Bold.ttf",
+	"/System/Library/Fonts/Supplemental/Verdana.ttf",
+}
 
 // GeneratedDataset is the object that describes the generated
 // fonts dataset.
 type GeneratedDataset struct {
 	size     int
 	filename string
+	basepath string
 	epochs   int
+	fonts    []string
 }
 
 // NewGeneratedDataset wil create a new GeneratedDataset instance.
 func NewGeneratedDataset() dataset.Dataset {
 	return &GeneratedDataset{
-		size:     10000,
+		size:     60000,
 		epochs:   1,
-		filename: "./internal/numocr/dataset/generated/trained.bin",
+		fonts:    Fonts,
+		basepath: "./internal/numocr/dataset/generated/",
+		filename: "trained.bin",
+	}
+}
+
+// NewGeneratedDatasetForFont wil create a new GeneratedDataset
+// instance for given font file.
+func NewGeneratedDatasetForFont(font string) dataset.Dataset {
+	re := regexp.MustCompile(`\..*$`)
+	f := strings.ToLower(re.ReplaceAllString(path.Base(font), ""))
+	re = regexp.MustCompile(`[^a-z0-9]`)
+	f = re.ReplaceAllString(f, "")
+
+	return &GeneratedDataset{
+		size:     60000,
+		epochs:   1,
+		fonts:    []string{font},
+		basepath: "./internal/numocr/dataset/generated/",
+		filename: "trained" + f + ".bin",
 	}
 }
 
 // WeightsFile will return the filename of the stored weights.
 func (fd *GeneratedDataset) WeightsFile() string {
-	return fd.filename
+	return fd.basepath + fd.filename
 }
 
 // Epochs returns the number of epochs that should run during training.
 func (fd *GeneratedDataset) Epochs() int {
 	return fd.epochs
+}
+
+// getFonts will return the configured fonts for this dataset.
+func (fd *GeneratedDataset) getFonts() []string {
+	return fd.fonts
 }
 
 // XY will create both input and output data for various variations
@@ -80,6 +108,7 @@ func (fd *GeneratedDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 		m[i] = 0.9
 		y_[i] = m
 	}
+	fonts := fd.getFonts()
 	for i := 0; i < fd.size; i++ {
 		f := fonts[rand.Intn(len(fonts))]
 		n := rand.Intn(10)

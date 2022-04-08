@@ -52,9 +52,9 @@ func Train(dataset dataset.Dataset) error {
 		return err
 	}
 
-	// if err := m.load(output); err != nil {
-	// 	log.Printf("starting fresh, error loading previous snapshot: %s", err)
-	// }
+	if err := m.load(output); err != nil {
+		log.Printf("starting fresh, error loading previous snapshot: %s", err)
+	}
 
 	losses, err := gorgonia.HadamardProd(m.out, y)
 	if err != nil {

@@ -45,25 +45,25 @@ func NewInference(dataset dataset.Dataset) (*Inference, error) {
 // Predict will take a 28x28 image and return the integer it
 // thinks best matches the image. If no match is found, it will
 // return -1.
-func (in *Inference) Predict(image []byte) (int, error) {
+func (in *Inference) Predict(image []byte) (int, float64, error) {
 	in.vm.Reset()
 
-	x := ImageTensor(image)
+	x := imageTensor(image)
 	if err := x.(*tensor.Dense).Reshape(1, 1, 28, 28); err != nil {
-		return -1, fmt.Errorf("Unable to reshape: %s", err)
+		return -1, 0, fmt.Errorf("Unable to reshape: %s", err)
 	}
 
 	if err := gorgonia.Let(in.x, x); err != nil {
-		return -1, fmt.Errorf("Error setting inputs: %s", err)
+		return -1, 0, fmt.Errorf("Error setting inputs: %s", err)
 	}
 
 	if err := in.vm.RunAll(); err != nil {
-		return -1, fmt.Errorf("Failed running expression: %s", err)
+		return -1, 0, fmt.Errorf("Failed running expression: %s", err)
 	}
 
 	y, err := in.nn.output()
 	if err != nil {
-		return -1, fmt.Errorf("Unable predict: %s", err)
+		return -1, 0, fmt.Errorf("Unable predict: %s", err)
 	}
 
 	res := -1
@@ -77,12 +77,12 @@ func (in *Inference) Predict(image []byte) (int, error) {
 
 	// fmt.Printf("outs = %v\n", y)
 
-	return res, nil
+	return res, ms, nil
 }
 
-// ImageTensor converts a given []byte to a tensor with floats to use as
+// imageTensor converts a given []byte to a tensor with floats to use as
 // input for the network.
-func ImageTensor(M []byte) tensor.Tensor {
+func imageTensor(M []byte) tensor.Tensor {
 	cols := 28 * 28
 	rows := len(M) / cols
 	x := make([]float64, len(M), len(M))
