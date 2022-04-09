@@ -75,8 +75,11 @@ func Train(dataset dataset.Dataset) error {
 	defer vm.Close()
 
 	batches := numExamples / bs
-	log.Printf("Batches %d", batches)
-	bar := pb.New(batches)
+	testb := int(float64(batches) * dataset.TestRatio())
+	trainb := batches - testb
+	log.Printf("Batches %d/%d", trainb, testb)
+
+	bar := pb.New(trainb)
 	bar.SetRefreshRate(time.Second)
 	bar.SetMaxWidth(80)
 
@@ -84,7 +87,7 @@ func Train(dataset dataset.Dataset) error {
 		bar.Prefix(fmt.Sprintf("Epoch %d", i))
 		bar.Set(0)
 		bar.Start()
-		for b := 0; b < batches; b++ {
+		for b := 0; b < trainb; b++ {
 			start := b * bs
 			end := start + bs
 			if start >= numExamples {
@@ -118,11 +121,86 @@ func Train(dataset dataset.Dataset) error {
 			bar.Increment()
 		}
 		log.Printf("Epoch %d | cost %v", i, costVal)
+
+		// save newly learned weights
 		if err := m.save(output); err != nil {
 			return err
 		}
+
+		// test network performance
+		xt, err := inputs.Slice(sli{trainb * bs, numExamples})
+		if err != nil {
+			return err
+		}
+		yt, err := targets.Slice(sli{trainb * bs, numExamples})
+		if err != nil {
+			return err
+		}
+		acc, err := testNetwork(dataset, xt, yt)
+		if err != nil {
+			return err
+		}
+		log.Printf("Accuracy %f", acc)
 	}
 	bar.Finish()
 
 	return nil
+}
+
+func testNetwork(dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) (float64, error) {
+	g := gorgonia.NewGraph()
+	in := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
+	nn := newNetwork(g)
+	if err := nn.fwd(in); err != nil {
+		return 0, err
+	}
+
+	if err := nn.load(dataset.WeightsFile()); err != nil {
+		return 0, err
+	}
+	nn.disableDropOut()
+	vm := gorgonia.NewTapeMachine(g)
+
+	ok := 0
+	total := x.Shape()[0]
+	for i := 0; i < total; i++ {
+		vm.Reset()
+		x_, err := x.Slice(sli{i, i + 1})
+		if err != nil {
+			return 0, err
+		}
+		if err := x_.(*tensor.Dense).Reshape(1, 1, 28, 28); err != nil {
+			return 0, err
+		}
+		if err := gorgonia.Let(in, x_); err != nil {
+			return 0, err
+		}
+		if err := vm.RunAll(); err != nil {
+			return 0, err
+		}
+		res, err := nn.output()
+		if err != nil {
+			return 0, err
+		}
+		y_, err := y.Slice(sli{i, i + 1})
+		if err != nil {
+			return 0, err
+		}
+		if bestMatch(res) == bestMatch(y_.Data().([]float64)) {
+			ok++
+		}
+	}
+	return float64(ok) / float64(total), nil
+}
+
+func bestMatch(v []float64) int {
+	res := 0
+	ms := float64(0.)
+	for n, s := range v {
+		if s > ms {
+			res = n
+			ms = s
+		}
+	}
+	return res
 }

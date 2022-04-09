@@ -34,6 +34,13 @@ func (fd *MnistDataset) Epochs() int {
 	return fd.epochs
 }
 
+// XY returns the data to be trained.
 func (fd *MnistDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 	return loadMnist(datatype, dataloc, tensor.Float64)
+}
+
+// TestRatio returns how much can of the dataset can be used for
+// validating the network.
+func (fd *MnistDataset) TestRatio() float64 {
+	return 0.1
 }

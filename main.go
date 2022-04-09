@@ -15,16 +15,28 @@ func main() {
 	// 	return
 	// }
 
-	for _, f := range generated.Fonts {
+	fontsets := []struct {
+		name  string
+		fonts []string
+	}{
+		{name: "mono", fonts: generated.FontsMono},
+		{name: "sans", fonts: generated.FontsSans},
+		{name: "serif", fonts: generated.FontsSerif},
+		{name: "arial", fonts: generated.FontsArial},
+		{name: "times", fonts: generated.FontsTimes},
+		{name: "verdana", fonts: generated.FontsVerdana},
+	}
+
+	for _, f := range fontsets {
 		fmt.Printf("training %s\n", f)
-		d := generated.NewGeneratedDatasetForFont(f)
+		d := generated.NewGeneratedDatasetForFont(f.name, f.fonts)
 		if err := network.Train(d); err != nil {
 			fmt.Printf("error while training %s = %s\n", f, err)
 		}
 	}
 
-	for _, f := range generated.Fonts {
-		dataset := generated.NewGeneratedDatasetForFont(f)
+	for _, f := range fontsets {
+		dataset := generated.NewGeneratedDatasetForFont(f.name, f.fonts)
 
 		inf, err := network.NewInference(dataset)
 		if err != nil {

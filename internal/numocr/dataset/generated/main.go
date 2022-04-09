@@ -6,9 +6,6 @@ import (
 	"image/color"
 	"io/ioutil"
 	"math/rand"
-	"path"
-	"regexp"
-	"strings"
 
 	"github.com/golang/freetype"
 	"github.com/joyrex2001/sudosolv/internal/numocr/dataset"
@@ -21,25 +18,33 @@ const (
 	height = 28
 )
 
-// Fonts is a list of fonts that are available for training.
-var Fonts = []string{
+var FontsMono = []string{
 	"./internal/prinist/fonts/freefont-20100919/FreeMono.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeMonoBold.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeMonoBoldOblique.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeMonoOblique.ttf",
+}
+var FontsSans = []string{
 	"./internal/prinist/fonts/freefont-20100919/FreeSans.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeSansBold.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeSansBoldOblique.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeSansOblique.ttf",
+}
+var FontsSerif = []string{
 	"./internal/prinist/fonts/freefont-20100919/FreeSerif.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeSerifBold.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeSerifBoldItalic.ttf",
 	"./internal/prinist/fonts/freefont-20100919/FreeSerifItalic.ttf",
-
+}
+var FontsArial = []string{
 	"/System/Library/Fonts/Supplemental/Arial.ttf",
 	"/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+}
+var FontsTimes = []string{
 	"/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
 	"/System/Library/Fonts/Supplemental/Times New Roman.ttf",
+}
+var FontsVerdana = []string{
 	"/System/Library/Fonts/Supplemental/Verdana Bold.ttf",
 	"/System/Library/Fonts/Supplemental/Verdana.ttf",
 }
@@ -56,10 +61,14 @@ type GeneratedDataset struct {
 
 // NewGeneratedDataset wil create a new GeneratedDataset instance.
 func NewGeneratedDataset() dataset.Dataset {
+	fonts := []string{}
+	for _, f := range [][]string{FontsMono, FontsSans, FontsSerif, FontsArial, FontsTimes, FontsVerdana} {
+		fonts = append(fonts, f...)
+	}
 	return &GeneratedDataset{
-		size:     60000,
+		size:     20000,
 		epochs:   1,
-		fonts:    Fonts,
+		fonts:    fonts,
 		basepath: "./internal/numocr/dataset/generated/",
 		filename: "trained.bin",
 	}
@@ -67,18 +76,13 @@ func NewGeneratedDataset() dataset.Dataset {
 
 // NewGeneratedDatasetForFont wil create a new GeneratedDataset
 // instance for given font file.
-func NewGeneratedDatasetForFont(font string) dataset.Dataset {
-	re := regexp.MustCompile(`\..*$`)
-	f := strings.ToLower(re.ReplaceAllString(path.Base(font), ""))
-	re = regexp.MustCompile(`[^a-z0-9]`)
-	f = re.ReplaceAllString(f, "")
-
+func NewGeneratedDatasetForFont(name string, fonts []string) dataset.Dataset {
 	return &GeneratedDataset{
-		size:     60000,
-		epochs:   1,
-		fonts:    []string{font},
+		size:     20000,
+		epochs:   3,
+		fonts:    fonts,
 		basepath: "./internal/numocr/dataset/generated/",
-		filename: "trained" + f + ".bin",
+		filename: "trained" + name + ".bin",
 	}
 }
 
@@ -90,6 +94,12 @@ func (fd *GeneratedDataset) WeightsFile() string {
 // Epochs returns the number of epochs that should run during training.
 func (fd *GeneratedDataset) Epochs() int {
 	return fd.epochs
+}
+
+// TestRatio returns how much can of the dataset can be used for
+// validating the network.
+func (fd *GeneratedDataset) TestRatio() float64 {
+	return 0.1
 }
 
 // getFonts will return the configured fonts for this dataset.

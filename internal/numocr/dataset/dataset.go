@@ -15,6 +15,11 @@ type Dataset interface {
 	// a properly trained network.
 	Epochs() int
 
+	// TestRatio should return the ratio as a float between 0 and 1
+	// indicating how much of the data provided by XY can be used for
+	// testing the network.
+	TestRatio() float64
+
 	// WeightsFile should return the path of the file in which the
 	// trained weights should be stored during training, or loaded
 	// during inference.
