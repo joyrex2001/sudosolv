@@ -7,7 +7,7 @@ require (
 	gocv.io/x/gocv v0.30.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gorgonia.org/gorgonia v0.9.18-0.20220328013401-8b40b1cc5eed
-	gorgonia.org/tensor v0.9.22
+	gorgonia.org/tensor v0.9.23
 )
 
 require (

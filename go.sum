@@ -366,6 +366,8 @@ gorgonia.org/tensor v0.9.20/go.mod h1:75SMdLLhZ+2oB0/EE8lFEIt1Caoykdd4bz1mAe59de
 gorgonia.org/tensor v0.9.22-0.20211018175907-3039f42ea573/go.mod h1:XrTwRW8O7yHAzdiGm3ymMmd509pv0fqFYDgojXTCMLc=
 gorgonia.org/tensor v0.9.22 h1:oXNr7CfuyaDVd/0vg4i1f2ib8cyZs+daQETqASAhFhw=
 gorgonia.org/tensor v0.9.22/go.mod h1:XrTwRW8O7yHAzdiGm3ymMmd509pv0fqFYDgojXTCMLc=
+gorgonia.org/tensor v0.9.23 h1:2yZgu6OCabQ6yVWo3x9Wp/Ny9+DfkmsFOYSbOADY43c=
+gorgonia.org/tensor v0.9.23/go.mod h1:ZaFaLqBTKTzTbTzfnfbW8gDxFP2mXScMzjffUkSsK5Y=
 gorgonia.org/vecf32 v0.7.0/go.mod h1:iHG+kvTMqGYA0SgahfO2k62WRnxmHsqAREGbayRDzy8=
 gorgonia.org/vecf32 v0.9.0 h1:PClazic1r+JVJ1dEzRXgeiVl4g1/Hf/w+wUSqnco1Xg=
 gorgonia.org/vecf32 v0.9.0/go.mod h1:NCc+5D2oxddRL11hd+pCB1PEyXWOyiQxfZ/1wwhOXCA=

@@ -69,7 +69,7 @@ func (in *Inference) Predict(image []byte) (int, float64, error) {
 	res := -1
 	ms := float64(0.)
 	for n, s := range y {
-		if s > ms {
+		if s > 0.9 && s > ms {
 			res = n
 			ms = s
 		}

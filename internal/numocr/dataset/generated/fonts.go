@@ -43,7 +43,7 @@ var FontsVerdana = []string{
 	"/System/Library/Fonts/Supplemental/Verdana Italic.ttf",
 	"/System/Library/Fonts/Supplemental/Verdana.ttf",
 }
-var FontsSuplemental = []string{
+var FontsSupplemental = []string{
 	"/System/Library/Fonts/Supplemental/Academy Engraved LET Fonts.ttf",
 	"/System/Library/Fonts/Supplemental/Andale Mono.ttf",
 	"/System/Library/Fonts/Supplemental/AppleGothic.ttf",

@@ -26,6 +26,7 @@ type GeneratedDataset struct {
 	filename string
 	basepath string
 	epochs   int
+	noise    bool
 	fonts    []string
 }
 
@@ -36,6 +37,7 @@ func NewGeneratedDataset() dataset.Dataset {
 		size:     60000,
 		epochs:   3,
 		fonts:    fonts,
+		noise:    true,
 		basepath: "./internal/numocr/dataset/generated/",
 		filename: "trained.bin",
 	}
@@ -45,7 +47,7 @@ func NewGeneratedDataset() dataset.Dataset {
 // instance for given font file.
 func NewGeneratedDatasetForFont(name string, fonts []string) dataset.Dataset {
 	return &GeneratedDataset{
-		size:     20000,
+		size:     60000,
 		epochs:   3,
 		fonts:    fonts,
 		basepath: "./internal/numocr/dataset/generated/",
@@ -93,6 +95,9 @@ func (fd *GeneratedDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 		if err != nil {
 			return nil, nil, err
 		}
+		if fd.noise {
+			b = noise(b, 512, 0.02) // 2% noise with intensity of 512
+		}
 		x = append(x, b...)
 		y = append(y, y_[n]...)
 	}
@@ -139,6 +144,26 @@ func gen(font string, number int) ([]byte, error) {
 	}
 
 	return buf, nil
+}
+
+// noise will add noise to the given buffer. The noise brightness level is
+// indicated by amount and the chance is indicated the given float
+// indicating a percentage (0...1).
+func noise(buf []byte, amount int, chance float64) []byte {
+	for i, v := range buf {
+		if rand.Float64() > chance {
+			continue
+		}
+		n := int(v) + (amount / 2) - rand.Intn(amount)
+		if n < 0 {
+			n = 0
+		}
+		if n > 255 {
+			n = 255
+		}
+		buf[i] = byte(n)
+	}
+	return buf
 }
 
 // X2Tensor converts a given []byte to a tensor with floats to use as
