@@ -19,7 +19,7 @@ type MnistDataset struct {
 // NewMnistDataset wil create a new MnistDataset instance.
 func NewMnistDataset() dataset.Dataset {
 	return &MnistDataset{
-		epochs:   1,
+		epochs:   3,
 		filename: "./internal/numocr/dataset/mnist/trained.bin",
 	}
 }

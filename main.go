@@ -9,6 +9,12 @@ import (
 )
 
 func main() {
+	dataset := generated.NewGeneratedDataset()
+	if err := network.Train(dataset); err != nil {
+		fmt.Printf("error = %s\n", err)
+		return
+	}
+
 	// dataset := mnist.NewMnistDataset()
 	// if err := network.Train(dataset); err != nil {
 	// 	fmt.Printf("error = %s\n", err)

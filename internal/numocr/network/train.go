@@ -120,6 +120,7 @@ func Train(dataset dataset.Dataset) error {
 			vm.Reset()
 			bar.Increment()
 		}
+		fmt.Println()
 		log.Printf("Epoch %d | cost %v", i, costVal)
 
 		// save newly learned weights

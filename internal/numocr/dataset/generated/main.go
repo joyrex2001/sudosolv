@@ -8,46 +8,16 @@ import (
 	"math/rand"
 
 	"github.com/golang/freetype"
-	"github.com/joyrex2001/sudosolv/internal/numocr/dataset"
 	"golang.org/x/image/draw"
 	"gorgonia.org/tensor"
+
+	"github.com/joyrex2001/sudosolv/internal/numocr/dataset"
 )
 
 const (
 	width  = 28
 	height = 28
 )
-
-var FontsMono = []string{
-	"./internal/prinist/fonts/freefont-20100919/FreeMono.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeMonoBold.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeMonoBoldOblique.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeMonoOblique.ttf",
-}
-var FontsSans = []string{
-	"./internal/prinist/fonts/freefont-20100919/FreeSans.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeSansBold.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeSansBoldOblique.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeSansOblique.ttf",
-}
-var FontsSerif = []string{
-	"./internal/prinist/fonts/freefont-20100919/FreeSerif.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeSerifBold.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeSerifBoldItalic.ttf",
-	"./internal/prinist/fonts/freefont-20100919/FreeSerifItalic.ttf",
-}
-var FontsArial = []string{
-	"/System/Library/Fonts/Supplemental/Arial.ttf",
-	"/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-}
-var FontsTimes = []string{
-	"/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
-	"/System/Library/Fonts/Supplemental/Times New Roman.ttf",
-}
-var FontsVerdana = []string{
-	"/System/Library/Fonts/Supplemental/Verdana Bold.ttf",
-	"/System/Library/Fonts/Supplemental/Verdana.ttf",
-}
 
 // GeneratedDataset is the object that describes the generated
 // fonts dataset.
@@ -61,13 +31,10 @@ type GeneratedDataset struct {
 
 // NewGeneratedDataset wil create a new GeneratedDataset instance.
 func NewGeneratedDataset() dataset.Dataset {
-	fonts := []string{}
-	for _, f := range [][]string{FontsMono, FontsSans, FontsSerif, FontsArial, FontsTimes, FontsVerdana} {
-		fonts = append(fonts, f...)
-	}
+	fonts := allFonts()
 	return &GeneratedDataset{
-		size:     20000,
-		epochs:   1,
+		size:     60000,
+		epochs:   3,
 		fonts:    fonts,
 		basepath: "./internal/numocr/dataset/generated/",
 		filename: "trained.bin",
@@ -122,7 +89,11 @@ func (fd *GeneratedDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 	for i := 0; i < fd.size; i++ {
 		f := fonts[rand.Intn(len(fonts))]
 		n := rand.Intn(10)
-		x = append(x, gen(f, n)...)
+		b, err := gen(f, n)
+		if err != nil {
+			return nil, nil, err
+		}
+		x = append(x, b...)
 		y = append(y, y_[n]...)
 	}
 	return x2tensor(x), y2tensor(y), nil
@@ -130,9 +101,16 @@ func (fd *GeneratedDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 
 // gen will create an 28x28 byte buffer with the given number printed
 // with the given ttf font.
-func gen(font string, number int) []byte {
-	b, _ := ioutil.ReadFile(font)
-	f, _ := freetype.ParseFont(b)
+func gen(font string, number int) ([]byte, error) {
+	b, err := ioutil.ReadFile(font)
+	if err != nil {
+		return nil, err
+	}
+	f, err := freetype.ParseFont(b)
+	if err != nil {
+		return nil, err
+	}
+
 	ctx := freetype.NewContext()
 	img := image.NewGray(image.Rect(0, 0, 256, 256))
 	ctx.SetFont(f)
@@ -160,15 +138,7 @@ func gen(font string, number int) []byte {
 		buf = append(buf, x)
 	}
 
-	// for i, x := range buf {
-	// 	fmt.Printf(" %3d ", x)
-	// 	if (i+1)%width == 0 {
-	// 		fmt.Printf("\n")
-	// 	}
-	// }
-	// fmt.Printf("\n")
-
-	return buf
+	return buf, nil
 }
 
 // X2Tensor converts a given []byte to a tensor with floats to use as
