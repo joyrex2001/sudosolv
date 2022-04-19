@@ -6,13 +6,14 @@ import (
 )
 
 func TestFontCompatability(t *testing.T) {
+	fd := &GeneratedDataset{}
 	fonts := allFonts()
 	// fonts := FontsSuplemental
 	for i, f := range fonts {
 		fmt.Printf("[%03d] testing %s\n", i, f)
 		c := 0
 		for n := 0; n < 10; n++ {
-			buf, err := gen(f, n)
+			buf, err := fd.gen(f, n)
 			if err != nil {
 				t.Errorf("error generating %d with %s: %s", n, f, err)
 			}
@@ -33,10 +34,11 @@ func TestFontCompatability(t *testing.T) {
 }
 
 func TestNoise(t *testing.T) {
+	fd := &GeneratedDataset{}
 	fonts := FontsArial
 	for _, f := range fonts {
 		for n := 0; n < 10; n++ {
-			buf, err := gen(f, n)
+			buf, err := fd.gen(f, n)
 			if err != nil {
 				t.Errorf("error generating %d with %s: %s", n, f, err)
 			}

@@ -27,6 +27,7 @@ type GeneratedDataset struct {
 	basepath string
 	epochs   int
 	noise    bool
+	rndsize  bool
 	fonts    []string
 }
 
@@ -37,7 +38,8 @@ func NewGeneratedDataset() dataset.Dataset {
 		size:     60000,
 		epochs:   3,
 		fonts:    fonts,
-		noise:    true,
+		noise:    false,
+		rndsize:  false,
 		basepath: "./internal/numocr/dataset/generated/",
 		filename: "trained.bin",
 	}
@@ -91,7 +93,7 @@ func (fd *GeneratedDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 	for i := 0; i < fd.size; i++ {
 		f := fonts[rand.Intn(len(fonts))]
 		n := rand.Intn(10)
-		b, err := gen(f, n)
+		b, err := fd.gen(f, n)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -106,7 +108,7 @@ func (fd *GeneratedDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
 
 // gen will create an 28x28 byte buffer with the given number printed
 // with the given ttf font.
-func gen(font string, number int) ([]byte, error) {
+func (fd *GeneratedDataset) gen(font string, number int) ([]byte, error) {
 	b, err := ioutil.ReadFile(font)
 	if err != nil {
 		return nil, err
@@ -129,10 +131,20 @@ func gen(font string, number int) ([]byte, error) {
 		uint8(rand.Intn(50) + 205),
 		uint8(rand.Intn(50) + 205),
 	}))
-	ctx.SetFontSize(float64(rand.Intn(50) + 200))
+
+	s := 325.
+	x, y := 50, 240
+
+	if !fd.rndsize {
+		s = float64(rand.Intn(50) + 200)
+		x = rand.Intn(128)
+		y = 256 - rand.Intn(100)
+	}
+
+	ctx.SetFontSize(s)
 	ctx.DrawString(
 		fmt.Sprintf("%d", number),
-		freetype.Pt(rand.Intn(128), 256-rand.Intn(100)),
+		freetype.Pt(x, y),
 	)
 
 	// resize to 28x28

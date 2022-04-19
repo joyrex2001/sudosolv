@@ -120,7 +120,6 @@ func Train(dataset dataset.Dataset) error {
 			vm.Reset()
 			bar.Increment()
 		}
-		fmt.Println()
 		log.Printf("Epoch %d | cost %v", i, costVal)
 
 		// save newly learned weights
@@ -137,30 +136,34 @@ func Train(dataset dataset.Dataset) error {
 		if err != nil {
 			return err
 		}
-		acc, err := testNetwork(dataset, xt, yt)
+		pred, vals, score, err := testNetwork(dataset, xt, yt)
 		if err != nil {
 			return err
 		}
-		log.Printf("Accuracy %f", acc)
+		log.Println()
+		log.Printf("pred = %v\nvals = %v\nscore = %f\n\n", pred, vals, score)
 	}
 	bar.Finish()
 
 	return nil
 }
 
-func testNetwork(dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) (float64, error) {
+func testNetwork(dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) ([]int, []int, float64, error) {
 	g := gorgonia.NewGraph()
 	in := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
 	nn := newNetwork(g)
 	if err := nn.fwd(in); err != nil {
-		return 0, err
+		return nil, nil, 0, err
 	}
 
 	if err := nn.load(dataset.WeightsFile()); err != nil {
-		return 0, err
+		return nil, nil, 0, err
 	}
 	nn.disableDropOut()
 	vm := gorgonia.NewTapeMachine(g)
+
+	pred := make([]int, 10)
+	vals := make([]int, 10)
 
 	ok := 0
 	total := x.Shape()[0]
@@ -168,30 +171,35 @@ func testNetwork(dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) (flo
 		vm.Reset()
 		x_, err := x.Slice(sli{i, i + 1})
 		if err != nil {
-			return 0, err
+			return nil, nil, 0, err
 		}
 		if err := x_.(*tensor.Dense).Reshape(1, 1, 28, 28); err != nil {
-			return 0, err
+			return nil, nil, 0, err
 		}
 		if err := gorgonia.Let(in, x_); err != nil {
-			return 0, err
+			return nil, nil, 0, err
 		}
 		if err := vm.RunAll(); err != nil {
-			return 0, err
+			return nil, nil, 0, err
 		}
 		res, err := nn.output()
 		if err != nil {
-			return 0, err
+			return nil, nil, 0, err
 		}
 		y_, err := y.Slice(sli{i, i + 1})
 		if err != nil {
-			return 0, err
+			return nil, nil, 0, err
 		}
-		if bestMatch(res) == bestMatch(y_.Data().([]float64)) {
+		m := bestMatch(res)
+		v := bestMatch(y_.Data().([]float64))
+		if m == v {
 			ok++
 		}
+		pred[m]++
+		vals[v]++
 	}
-	return float64(ok) / float64(total), nil
+	score := float64(ok) / float64(total)
+	return pred, vals, score, nil
 }
 
 func bestMatch(v []float64) int {
