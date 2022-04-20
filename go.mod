@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/spf13/cobra v1.4.0
 	gocv.io/x/gocv v0.30.0
 	golang.org/x/image v0.0.0-20220302094943-723b81ca9867
 	gopkg.in/cheggaaa/pb.v1 v1.0.28

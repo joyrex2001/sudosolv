@@ -26,12 +26,11 @@ func (s sli) End() int   { return s.end }
 func (s sli) Step() int  { return 1 }
 
 // Train will train a mnist network for given dataset object.
-func Train(dataset dataset.Dataset) error {
+func Train(weights string, dataset dataset.Dataset) error {
 	rand.Seed(1337)
 
 	var err error
 
-	output := dataset.WeightsFile()
 	epochs := dataset.Epochs()
 	inputs, targets, err := dataset.XY()
 	if err != nil {
@@ -52,7 +51,7 @@ func Train(dataset dataset.Dataset) error {
 		return err
 	}
 
-	if err := m.load(output); err != nil {
+	if err := m.load(weights); err != nil {
 		log.Printf("starting fresh, error loading previous snapshot: %s", err)
 	}
 
@@ -123,7 +122,7 @@ func Train(dataset dataset.Dataset) error {
 		log.Printf("Epoch %d | cost %v", i, costVal)
 
 		// save newly learned weights
-		if err := m.save(output); err != nil {
+		if err := m.save(weights); err != nil {
 			return err
 		}
 
@@ -136,7 +135,7 @@ func Train(dataset dataset.Dataset) error {
 		if err != nil {
 			return err
 		}
-		pred, vals, score, err := testNetwork(dataset, xt, yt)
+		pred, vals, score, err := testNetwork(weights, dataset, xt, yt)
 		if err != nil {
 			return err
 		}
@@ -148,7 +147,7 @@ func Train(dataset dataset.Dataset) error {
 	return nil
 }
 
-func testNetwork(dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) ([]int, []int, float64, error) {
+func testNetwork(weights string, dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) ([]int, []int, float64, error) {
 	g := gorgonia.NewGraph()
 	in := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
 	nn := newNetwork(g)
@@ -156,7 +155,7 @@ func testNetwork(dataset dataset.Dataset, x tensor.Tensor, y tensor.Tensor) ([]i
 		return nil, nil, 0, err
 	}
 
-	if err := nn.load(dataset.WeightsFile()); err != nil {
+	if err := nn.load(weights); err != nil {
 		return nil, nil, 0, err
 	}
 	nn.disableDropOut()

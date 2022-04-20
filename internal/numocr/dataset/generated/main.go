@@ -22,26 +22,22 @@ const (
 // GeneratedDataset is the object that describes the generated
 // fonts dataset.
 type GeneratedDataset struct {
-	size     int
-	filename string
-	basepath string
-	epochs   int
-	noise    bool
-	rndsize  bool
-	fonts    []string
+	size    int
+	epochs  int
+	noise   bool
+	rndsize bool
+	fonts   []string
 }
 
 // NewGeneratedDataset wil create a new GeneratedDataset instance.
 func NewGeneratedDataset() dataset.Dataset {
 	fonts := allFonts()
 	return &GeneratedDataset{
-		size:     60000,
-		epochs:   3,
-		fonts:    fonts,
-		noise:    false,
-		rndsize:  false,
-		basepath: "./internal/numocr/dataset/generated/",
-		filename: "trained.bin",
+		size:    30000,
+		epochs:  3,
+		fonts:   fonts,
+		noise:   true,
+		rndsize: true,
 	}
 }
 
@@ -49,17 +45,10 @@ func NewGeneratedDataset() dataset.Dataset {
 // instance for given font file.
 func NewGeneratedDatasetForFont(name string, fonts []string) dataset.Dataset {
 	return &GeneratedDataset{
-		size:     60000,
-		epochs:   3,
-		fonts:    fonts,
-		basepath: "./internal/numocr/dataset/generated/",
-		filename: "trained" + name + ".bin",
+		size:   60000,
+		epochs: 3,
+		fonts:  fonts,
 	}
-}
-
-// WeightsFile will return the filename of the stored weights.
-func (fd *GeneratedDataset) WeightsFile() string {
-	return fd.basepath + fd.filename
 }
 
 // Epochs returns the number of epochs that should run during training.

@@ -12,21 +12,14 @@ const (
 
 // MnistDataset is the object that describes the mnist dataset.
 type MnistDataset struct {
-	filename string
-	epochs   int
+	epochs int
 }
 
 // NewMnistDataset wil create a new MnistDataset instance.
 func NewMnistDataset() dataset.Dataset {
 	return &MnistDataset{
-		epochs:   3,
-		filename: "./internal/numocr/dataset/mnist/trained.bin",
+		epochs: 3,
 	}
-}
-
-// WeightsFile will return the filename of the stored weights.
-func (fd *MnistDataset) WeightsFile() string {
-	return fd.filename
 }
 
 // Epochs returns the number of epochs that should run during training.

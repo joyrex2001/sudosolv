@@ -5,25 +5,20 @@ import (
 
 	"gorgonia.org/gorgonia"
 	"gorgonia.org/tensor"
-
-	"github.com/joyrex2001/sudosolv/internal/numocr/dataset"
 )
 
 // Inference is the internal representation of the inference object.
 type Inference struct {
-	vm      gorgonia.VM
-	x       *gorgonia.Node
-	g       *gorgonia.ExprGraph
-	nn      *network
-	dataset dataset.Dataset
+	vm gorgonia.VM
+	x  *gorgonia.Node
+	g  *gorgonia.ExprGraph
+	nn *network
 }
 
 // NewInference will return a new inference object with the given
 // trained weights file to handle predictions.
-func NewInference(dataset dataset.Dataset) (*Inference, error) {
-	in := &Inference{
-		dataset: dataset,
-	}
+func NewInference(weights string) (*Inference, error) {
+	in := &Inference{}
 	in.g = gorgonia.NewGraph()
 	in.x = gorgonia.NewTensor(in.g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
 	in.nn = newNetwork(in.g)
@@ -33,7 +28,7 @@ func NewInference(dataset dataset.Dataset) (*Inference, error) {
 		return nil, fmt.Errorf("Failed: %v", err)
 	}
 
-	if err := in.nn.load(dataset.WeightsFile()); err != nil {
+	if err := in.nn.load(weights); err != nil {
 		return nil, fmt.Errorf("Failed loading weights: %v", err)
 	}
 
