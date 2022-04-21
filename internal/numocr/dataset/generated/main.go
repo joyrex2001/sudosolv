@@ -30,24 +30,13 @@ type GeneratedDataset struct {
 }
 
 // NewGeneratedDataset wil create a new GeneratedDataset instance.
-func NewGeneratedDataset() dataset.Dataset {
-	fonts := allFonts()
+func NewGeneratedDataset(fonts []string, epochs, size int, noise, rndsize bool) dataset.Dataset {
 	return &GeneratedDataset{
-		size:    30000,
-		epochs:  3,
+		size:    size,
+		epochs:  epochs,
+		noise:   noise,
+		rndsize: rndsize,
 		fonts:   fonts,
-		noise:   true,
-		rndsize: true,
-	}
-}
-
-// NewGeneratedDatasetForFont wil create a new GeneratedDataset
-// instance for given font file.
-func NewGeneratedDatasetForFont(name string, fonts []string) dataset.Dataset {
-	return &GeneratedDataset{
-		size:   60000,
-		epochs: 3,
-		fonts:  fonts,
 	}
 }
 

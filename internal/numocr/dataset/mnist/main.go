@@ -7,18 +7,19 @@ import (
 
 const (
 	datatype = "train" // valid options are "train" or "test"
-	dataloc  = "./internal/numocr/dataset/mnist/dataset/"
 )
 
 // MnistDataset is the object that describes the mnist dataset.
 type MnistDataset struct {
-	epochs int
+	epochs  int
+	dataloc string
 }
 
 // NewMnistDataset wil create a new MnistDataset instance.
-func NewMnistDataset() dataset.Dataset {
+func NewMnistDataset(dataloc string, epochs int) dataset.Dataset {
 	return &MnistDataset{
-		epochs: 3,
+		epochs:  epochs,
+		dataloc: dataloc,
 	}
 }
 
@@ -29,7 +30,7 @@ func (fd *MnistDataset) Epochs() int {
 
 // XY returns the data to be trained.
 func (fd *MnistDataset) XY() (tensor.Tensor, tensor.Tensor, error) {
-	return loadMnist(datatype, dataloc, tensor.Float64)
+	return loadMnist(datatype, fd.dataloc, tensor.Float64)
 }
 
 // TestRatio returns how much can of the dataset can be used for

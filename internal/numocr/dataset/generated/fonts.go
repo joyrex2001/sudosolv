@@ -1,22 +1,22 @@
 package generated
 
 var FontsMono = []string{
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeMono.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeMonoBold.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeMonoBoldOblique.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeMonoOblique.ttf",
+	"./dataset/fonts/freefont-20100919/FreeMono.ttf",
+	"./dataset/fonts/freefont-20100919/FreeMonoBold.ttf",
+	"./dataset/fonts/freefont-20100919/FreeMonoBoldOblique.ttf",
+	"./dataset/fonts/freefont-20100919/FreeMonoOblique.ttf",
 }
 var FontsSans = []string{
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSans.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSansBold.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSansBoldOblique.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSansOblique.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSans.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSansBold.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSansBoldOblique.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSansOblique.ttf",
 }
 var FontsSerif = []string{
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSerif.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSerifBold.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSerifBoldItalic.ttf",
-	"./internal/numocr/dataset/generated/fonts/freefont-20100919/FreeSerifItalic.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSerif.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSerifBold.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSerifBoldItalic.ttf",
+	"./dataset/fonts/freefont-20100919/FreeSerifItalic.ttf",
 }
 var FontsArial = []string{
 	"/System/Library/Fonts/Supplemental/Arial Black.ttf",

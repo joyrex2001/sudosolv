@@ -7,8 +7,8 @@ import (
 
 func TestFontCompatability(t *testing.T) {
 	fd := &GeneratedDataset{}
-	fonts := allFonts()
-	// fonts := FontsSuplemental
+	// fonts := allFonts()
+	fonts := FontsSupplemental
 	for i, f := range fonts {
 		fmt.Printf("[%03d] testing %s\n", i, f)
 		c := 0

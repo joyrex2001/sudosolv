@@ -23,7 +23,11 @@ func init() {
 
 func trainMnist(cmd *cobra.Command, args []string) {
 	weights, _ := cmd.Flags().GetString("weights")
-	dataset := mnist.NewMnistDataset()
+	epochs, _ := cmd.Flags().GetInt("epochs")
+
+	dataloc, _ := cmd.Flags().GetString("dataset")
+	dataset := mnist.NewMnistDataset(dataloc, epochs)
+
 	if err := network.Train(weights, dataset); err != nil {
 		fmt.Printf("error = %s\n", err)
 		return
