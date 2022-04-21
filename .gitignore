@@ -16,4 +16,6 @@ mnist-trained*.bin
 trained*.bin
 freefont-*
 freefont-ttf-*
+fonts-all
+fonts-normal
 sudosolv

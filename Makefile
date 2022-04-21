@@ -2,14 +2,14 @@ run:
 	go run main.go 
 
 train:
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919 --rndsize
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919 --noise
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919 --rndsize --noise
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919 --rndsize
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/freefont-20100919 --noise	
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-normal
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-normal --rndsize
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-normal --noise
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-normal
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-normal --rndsize --noise
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-all
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-all --rndsize
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataset/fonts/fonts-all --noise	
 
 build:
 	go build -o sudosolv
