@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/joyrex2001/sudosolv/internal/image"
-	"github.com/joyrex2001/sudosolv/internal/numocr/network"
+	"github.com/joyrex2001/sudosolv/internal/numocr/classifier"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +27,7 @@ func decodeImage(cmd *cobra.Command, args []string) {
 	file, _ := cmd.Flags().GetString("file")
 	display, _ := cmd.Flags().GetBool("display")
 
-	inf, err := network.NewInference(weights)
+	inf, err := classifier.NewInference(weights)
 	if err != nil {
 		fmt.Printf("error = %s\n", err)
 		return

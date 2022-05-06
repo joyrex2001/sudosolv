@@ -1,4 +1,4 @@
-package network
+package classifier
 
 import (
 	"fmt"

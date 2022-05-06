@@ -7,8 +7,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/joyrex2001/sudosolv/internal/numocr/classifier"
 	"github.com/joyrex2001/sudosolv/internal/numocr/dataset/generated"
-	"github.com/joyrex2001/sudosolv/internal/numocr/network"
 
 	"github.com/spf13/cobra"
 )
@@ -42,7 +42,7 @@ func trainGenerated(cmd *cobra.Command, args []string) {
 	}
 
 	dataset := generated.NewGeneratedDataset(fonts, epochs, size, noise, rndsize)
-	if err := network.Train(weights, dataset); err != nil {
+	if err := classifier.Train(weights, dataset); err != nil {
 		fmt.Printf("error = %s\n", err)
 		return
 	}

@@ -3,8 +3,8 @@ package train
 import (
 	"fmt"
 
+	"github.com/joyrex2001/sudosolv/internal/numocr/classifier"
 	"github.com/joyrex2001/sudosolv/internal/numocr/dataset/mnist"
-	"github.com/joyrex2001/sudosolv/internal/numocr/network"
 
 	"github.com/spf13/cobra"
 )
@@ -28,7 +28,7 @@ func trainMnist(cmd *cobra.Command, args []string) {
 	dataloc, _ := cmd.Flags().GetString("dataloc")
 	dataset := mnist.NewMnistDataset(dataloc, epochs)
 
-	if err := network.Train(weights, dataset); err != nil {
+	if err := classifier.Train(weights, dataset); err != nil {
 		fmt.Printf("error = %s\n", err)
 		return
 	}
