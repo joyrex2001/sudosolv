@@ -22,9 +22,8 @@ func NewInference(weights string) (*Inference, error) {
 	in.g = gorgonia.NewGraph()
 	in.x = gorgonia.NewTensor(in.g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
 	in.nn = newNetwork(in.g)
-	in.nn.disableDropOut()
 
-	if err := in.nn.fwd(in.x); err != nil {
+	if err := in.nn.fwd(in.x, false); err != nil {
 		return nil, fmt.Errorf("Failed: %v", err)
 	}
 

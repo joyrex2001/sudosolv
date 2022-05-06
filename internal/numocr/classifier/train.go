@@ -47,7 +47,7 @@ func Train(weights string, dataset dataset.Dataset) error {
 	y := gorgonia.NewMatrix(g, tensor.Float64, gorgonia.WithShape(bs, 10), gorgonia.WithName("y"))
 
 	m := newNetwork(g)
-	if err := m.fwd(x); err != nil {
+	if err := m.fwd(x, true); err != nil {
 		return err
 	}
 
@@ -151,14 +151,13 @@ func testNetwork(weights string, dataset dataset.Dataset, x tensor.Tensor, y ten
 	g := gorgonia.NewGraph()
 	in := gorgonia.NewTensor(g, tensor.Float64, 4, gorgonia.WithShape(1, 1, 28, 28), gorgonia.WithName("x"))
 	nn := newNetwork(g)
-	if err := nn.fwd(in); err != nil {
+	if err := nn.fwd(in, false); err != nil {
 		return nil, nil, 0, err
 	}
 
 	if err := nn.load(weights); err != nil {
 		return nil, nil, 0, err
 	}
-	nn.disableDropOut()
 	vm := gorgonia.NewTapeMachine(g)
 
 	pred := make([]int, 10)
