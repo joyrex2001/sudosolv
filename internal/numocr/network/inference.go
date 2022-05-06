@@ -43,6 +43,10 @@ func NewInference(weights string) (*Inference, error) {
 func (in *Inference) Predict(image []byte) (int, float64, error) {
 	in.vm.Reset()
 
+	if isBlankImage(image) {
+		return -1, 0, nil
+	}
+
 	x := imageTensor(image)
 	if err := x.(*tensor.Dense).Reshape(1, 1, 28, 28); err != nil {
 		return -1, 0, fmt.Errorf("Unable to reshape: %s", err)
@@ -90,4 +94,14 @@ func imageTensor(M []byte) tensor.Tensor {
 		x[i] = n
 	}
 	return tensor.New(tensor.WithShape(rows, cols), tensor.WithBacking(x))
+}
+
+// isBlankImage will check if the given image is a blank image and
+// doesn't seem to contain a number.
+func isBlankImage(image []byte) bool {
+	sum := 0
+	for _, h := range image {
+		sum += int(h)
+	}
+	return sum < 10*255 // less than 10 intense bright pixels within the 28x28
 }

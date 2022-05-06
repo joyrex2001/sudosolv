@@ -24,7 +24,7 @@ func init() {
 	generatedCmd.Flags().Int("size", 60000, "Size of the dataset to be generated")
 	generatedCmd.Flags().Bool("noise", false, "Add noise to the dataset")
 	generatedCmd.Flags().Bool("rndsize", false, "Randomly vary the size of the fonts")
-	generatedCmd.Flags().String("fonts", "", "Path where to be used ttf font files are located")
+	generatedCmd.Flags().String("dataloc", "", "Path where to be used ttf font files are located")
 	Cmd.MarkFlagRequired("fonts")
 }
 
@@ -35,7 +35,7 @@ func trainGenerated(cmd *cobra.Command, args []string) {
 	size, _ := cmd.Flags().GetInt("size")
 	noise, _ := cmd.Flags().GetBool("noise")
 	rndsize, _ := cmd.Flags().GetBool("rndsize")
-	fpath, _ := cmd.Flags().GetString("fonts")
+	fpath, _ := cmd.Flags().GetString("dataloc")
 	fonts, err := getFontsFromFolder(fpath)
 	if err != nil {
 		log.Fatal(err)

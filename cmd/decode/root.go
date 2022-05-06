@@ -18,12 +18,14 @@ var Cmd = &cobra.Command{
 func init() {
 	Cmd.Flags().StringP("weights", "w", "trained.bin", "Filename to write/update output weights")
 	Cmd.Flags().StringP("file", "f", "", "Filename of a picture of a sudoko to be decoded")
+	Cmd.Flags().Bool("display", false, "Display the cropped sudoku image and wait until a key press")
 	Cmd.MarkFlagRequired("file")
 }
 
 func decodeImage(cmd *cobra.Command, args []string) {
 	weights, _ := cmd.Flags().GetString("weights")
 	file, _ := cmd.Flags().GetString("file")
+	display, _ := cmd.Flags().GetBool("display")
 
 	inf, err := network.NewInference(weights)
 	if err != nil {
@@ -32,6 +34,11 @@ func decodeImage(cmd *cobra.Command, args []string) {
 	}
 
 	img := image.NewPuzzleImage(file)
+	if display {
+		img.Display()
+		return
+	}
+
 	for y := 0; y < 9; y++ {
 		if y != 0 && y%3 == 0 {
 			fmt.Printf("-----------+-----------+-----------\n")

@@ -11,9 +11,9 @@ func init() {
 	runtime.LockOSThread()
 }
 
-// Display will display the given OpenCV matrix in a new window
+// display will display the given OpenCV matrix in a new window
 // and will wait until a keypres.
-func Display(img gocv.Mat) {
+func display(img gocv.Mat) {
 	for {
 		window := gocv.NewWindow("Hello")
 		window.IMShow(img)

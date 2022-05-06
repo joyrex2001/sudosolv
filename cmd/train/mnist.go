@@ -17,7 +17,7 @@ var mnistCmd = &cobra.Command{
 
 func init() {
 	Cmd.AddCommand(mnistCmd)
-	mnistCmd.Flags().String("dataset", "", "Path where the mnist dataset files are located")
+	mnistCmd.Flags().String("dataloc", "", "Path where the mnist dataset files are located")
 	Cmd.MarkFlagRequired("dataset")
 }
 
@@ -25,7 +25,7 @@ func trainMnist(cmd *cobra.Command, args []string) {
 	weights, _ := cmd.Flags().GetString("weights")
 	epochs, _ := cmd.Flags().GetInt("epochs")
 
-	dataloc, _ := cmd.Flags().GetString("dataset")
+	dataloc, _ := cmd.Flags().GetString("dataloc")
 	dataset := mnist.NewMnistDataset(dataloc, epochs)
 
 	if err := network.Train(weights, dataset); err != nil {

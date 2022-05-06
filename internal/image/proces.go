@@ -31,12 +31,12 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 
 	bl := gocv.NewMat()
 	gocv.GaussianBlur(gr, &bl, image.Point{}, 5, 5, gocv.BorderDefault)
-	// Display(bl)
+	// display(bl)
 
 	wb := gocv.NewMat()
 	gocv.Threshold(gr, &wb, 127, 255, 0)
 	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 1)
-	// Display(wb)
+	// display(wb)
 
 	cn := gocv.FindContours(wb, gocv.RetrievalList, gocv.ChainApproxSimple)
 	box := gocv.NewPointVector()
@@ -62,9 +62,15 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 
 	crop := gocv.NewMat()
 	gocv.WarpPerspective(img, &crop, pt, image.Point{width, width})
-	// Display(crop)
+	// display(crop)
 
 	return crop
+}
+
+// Display will display the puzzle data and wait until a key has
+// been pressed.
+func (pi *PuzzleImage) Display() {
+	display(pi.img)
 }
 
 // getSudokuCellArea will return a rectangle with coordinates in
@@ -90,7 +96,8 @@ func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
 	gocv.AdaptiveThreshold(gr, &thres, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 8)
 	bx := biggestBoundingBox(thres)
 	if bx.Size().X*bx.Size().Y > 10 {
-		bx = addMargin(bx, 1)
+		// fmt.Printf("bx=%v\n", bx)
+		// bx = addMargin(bx, 1)
 		crop = crop.Region(bx)
 	}
 
@@ -102,7 +109,7 @@ func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
 	// crop to 28x28
 	res := gocv.NewMat()
 	gocv.Resize(wb, &res, image.Point{28, 28}, 0, 0, gocv.InterpolationDefault)
-	// Display(res)
+	// display(res)
 
 	return res.ToBytes()
 }
