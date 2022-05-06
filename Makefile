@@ -2,21 +2,22 @@ run:
 	go run main.go 
 
 train:
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-normal
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-normal
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-normal --rndsize
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-normal --noise
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-normal
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-normal --rndsize --noise
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-all
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-all --rndsize
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --fonts ./dataloc/fonts/fonts-all --noise	
+	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
+	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
+	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal --rndsize
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal --noise
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal --rndsize --noise
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all --rndsize
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all --noise	
 
 build:
 	go build -o sudosolv
 
 clean:
-	rm -f sudosolv
+	rm -f sudosolv trained.bin
 	rm -rf dist
 	go mod tidy
 	rm -f coverage.out

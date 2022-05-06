@@ -79,7 +79,7 @@ func (m *network) load(fname string) error {
 			return err
 		}
 		if len(data) != len(t) {
-			return fmt.Errorf("Unserialized length %d. Expected length %d", len(data), len(t))
+			return fmt.Errorf("unserialized length %d. Expected length %d", len(data), len(t))
 		}
 		copy(t, data)
 	}
@@ -97,17 +97,17 @@ func (m *network) fwd(x *gorgonia.Node, dropout bool) (err error) {
 	// here we convolve with stride = (1, 1) and padding = (1, 1),
 	// which is your bog standard convolution for convnet
 	if c0, err = gorgonia.Conv2d(x, m.w0, tensor.Shape{3, 3}, []int{1, 1}, []int{1, 1}, []int{1, 1}); err != nil {
-		return fmt.Errorf("Layer 0 Convolution failed: %s", err)
+		return fmt.Errorf("layer 0 convolution failed: %s", err)
 	}
 	if a0, err = gorgonia.Rectify(c0); err != nil {
-		return fmt.Errorf("Layer 0 activation failed: %s", err)
+		return fmt.Errorf("layer 0 activation failed: %s", err)
 	}
 	if p0, err = gorgonia.MaxPool2D(a0, tensor.Shape{2, 2}, []int{0, 0}, []int{2, 2}); err != nil {
-		return fmt.Errorf("Layer 0 Maxpooling failed: %s", err)
+		return fmt.Errorf("layer 0 maxpooling failed: %s", err)
 	}
 	if dropout {
 		if l0, err = gorgonia.Dropout(p0, m.d0); err != nil {
-			return fmt.Errorf("Unable to apply a dropout: %s", err)
+			return fmt.Errorf("unable to apply a dropout: %s", err)
 		}
 	} else {
 		l0 = p0
@@ -115,17 +115,17 @@ func (m *network) fwd(x *gorgonia.Node, dropout bool) (err error) {
 
 	// Layer 1
 	if c1, err = gorgonia.Conv2d(l0, m.w1, tensor.Shape{3, 3}, []int{1, 1}, []int{1, 1}, []int{1, 1}); err != nil {
-		return fmt.Errorf("Layer 1 Convolution failed: %s", err)
+		return fmt.Errorf("layer 1 convolution failed: %s", err)
 	}
 	if a1, err = gorgonia.Rectify(c1); err != nil {
-		return fmt.Errorf("Layer 1 activation failed: %s", err)
+		return fmt.Errorf("layer 1 activation failed: %s", err)
 	}
 	if p1, err = gorgonia.MaxPool2D(a1, tensor.Shape{2, 2}, []int{0, 0}, []int{2, 2}); err != nil {
-		return fmt.Errorf("Layer 1 Maxpooling failed: %s", err)
+		return fmt.Errorf("layer 1 maxpooling failed: %s", err)
 	}
 	if dropout {
 		if l1, err = gorgonia.Dropout(p1, m.d1); err != nil {
-			return fmt.Errorf("Unable to apply a dropout to layer 1: %s", err)
+			return fmt.Errorf("unable to apply a dropout to layer 1: %s", err)
 		}
 	} else {
 		l1 = p1
@@ -133,23 +133,23 @@ func (m *network) fwd(x *gorgonia.Node, dropout bool) (err error) {
 
 	// Layer 2
 	if c2, err = gorgonia.Conv2d(l1, m.w2, tensor.Shape{3, 3}, []int{1, 1}, []int{1, 1}, []int{1, 1}); err != nil {
-		return fmt.Errorf("Layer 2 Convolution failed: %s", err)
+		return fmt.Errorf("layer 2 convolution failed: %s", err)
 	}
 	if a2, err = gorgonia.Rectify(c2); err != nil {
-		return fmt.Errorf("Layer 2 activation failed: %s", err)
+		return fmt.Errorf("layer 2 activation failed: %s", err)
 	}
 	if p2, err = gorgonia.MaxPool2D(a2, tensor.Shape{2, 2}, []int{0, 0}, []int{2, 2}); err != nil {
-		return fmt.Errorf("Layer 2 Maxpooling failed: %s", err)
+		return fmt.Errorf("layer 2 maxpooling failed: %s", err)
 	}
 
 	var r2 *gorgonia.Node
 	b, c, h, w := p2.Shape()[0], p2.Shape()[1], p2.Shape()[2], p2.Shape()[3]
 	if r2, err = gorgonia.Reshape(p2, tensor.Shape{b, c * h * w}); err != nil {
-		return fmt.Errorf("Unable to reshape layer 2: %s", err)
+		return fmt.Errorf("unable to reshape layer 2: %s", err)
 	}
 	if dropout {
 		if l2, err = gorgonia.Dropout(r2, m.d2); err != nil {
-			return fmt.Errorf("Unable to apply a dropout on layer 2: %s", err)
+			return fmt.Errorf("unable to apply a dropout on layer 2: %s", err)
 		}
 	} else {
 		l2 = r2
@@ -157,14 +157,14 @@ func (m *network) fwd(x *gorgonia.Node, dropout bool) (err error) {
 
 	// Layer 3
 	if fc, err = gorgonia.Mul(l2, m.w3); err != nil {
-		return fmt.Errorf("Unable to multiply l2 and w3: %s", err)
+		return fmt.Errorf("unable to multiply l2 and w3: %s", err)
 	}
 	if a3, err = gorgonia.Rectify(fc); err != nil {
-		return fmt.Errorf("Unable to activate fc: %s", err)
+		return fmt.Errorf("unable to activate fc: %s", err)
 	}
 	if dropout {
 		if l3, err = gorgonia.Dropout(a3, m.d3); err != nil {
-			return fmt.Errorf("Unable to apply a dropout on layer 3: %s", err)
+			return fmt.Errorf("unable to apply a dropout on layer 3: %s", err)
 		}
 	} else {
 		l3 = a3
@@ -173,10 +173,10 @@ func (m *network) fwd(x *gorgonia.Node, dropout bool) (err error) {
 	// output decode
 	var out *gorgonia.Node
 	if out, err = gorgonia.Mul(l3, m.w4); err != nil {
-		return fmt.Errorf("Unable to multiply l3 and w4: %s", err)
+		return fmt.Errorf("unable to multiply l3 and w4: %s", err)
 	}
 	if m.out, err = gorgonia.SoftMax(out); err != nil {
-		return fmt.Errorf("Unable to SoftMax: %s", err)
+		return fmt.Errorf("unable to SoftMax: %s", err)
 	}
 	gorgonia.Read(m.out, &m.pred)
 
@@ -186,7 +186,7 @@ func (m *network) fwd(x *gorgonia.Node, dropout bool) (err error) {
 // output will return the output of the graph after it has run.
 func (m *network) output() ([]float64, error) {
 	if m.pred == nil {
-		return nil, fmt.Errorf("No output available")
+		return nil, fmt.Errorf("no output available")
 	}
 	return m.pred.Data().([]float64), nil
 }

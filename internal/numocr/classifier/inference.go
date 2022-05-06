@@ -24,11 +24,11 @@ func NewInference(weights string) (*Inference, error) {
 	in.nn = newNetwork(in.g)
 
 	if err := in.nn.fwd(in.x, false); err != nil {
-		return nil, fmt.Errorf("Failed: %v", err)
+		return nil, fmt.Errorf("failed: %v", err)
 	}
 
 	if err := in.nn.load(weights); err != nil {
-		return nil, fmt.Errorf("Failed loading weights: %v", err)
+		return nil, fmt.Errorf("failed loading weights: %v", err)
 	}
 
 	in.vm = gorgonia.NewTapeMachine(in.g)
@@ -48,20 +48,20 @@ func (in *Inference) Predict(image []byte) (int, float64, error) {
 
 	x := imageTensor(image)
 	if err := x.(*tensor.Dense).Reshape(1, 1, 28, 28); err != nil {
-		return -1, 0, fmt.Errorf("Unable to reshape: %s", err)
+		return -1, 0, fmt.Errorf("unable to reshape: %s", err)
 	}
 
 	if err := gorgonia.Let(in.x, x); err != nil {
-		return -1, 0, fmt.Errorf("Error setting inputs: %s", err)
+		return -1, 0, fmt.Errorf("error setting inputs: %s", err)
 	}
 
 	if err := in.vm.RunAll(); err != nil {
-		return -1, 0, fmt.Errorf("Failed running expression: %s", err)
+		return -1, 0, fmt.Errorf("failed running expression: %s", err)
 	}
 
 	y, err := in.nn.output()
 	if err != nil {
-		return -1, 0, fmt.Errorf("Unable predict: %s", err)
+		return -1, 0, fmt.Errorf("unable predict: %s", err)
 	}
 
 	res := -1
@@ -83,7 +83,7 @@ func (in *Inference) Predict(image []byte) (int, float64, error) {
 func imageTensor(M []byte) tensor.Tensor {
 	cols := 28 * 28
 	rows := len(M) / cols
-	x := make([]float64, len(M), len(M))
+	x := make([]float64, len(M))
 	for i, px := range M {
 		max := 255.
 		n := float64(px)/max*0.9 + 0.1

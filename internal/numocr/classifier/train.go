@@ -78,11 +78,10 @@ func Train(weights string, dataset dataset.Dataset) error {
 	trainb := batches - testb
 	log.Printf("Batches %d/%d", trainb, testb)
 
-	bar := pb.New(trainb)
-	bar.SetRefreshRate(time.Second)
-	bar.SetMaxWidth(80)
-
 	for i := 0; i < epochs; i++ {
+		bar := pb.New(trainb)
+		bar.SetRefreshRate(time.Second)
+		bar.SetMaxWidth(80)
 		bar.Prefix(fmt.Sprintf("Epoch %d", i))
 		bar.Set(0)
 		bar.Start()
@@ -98,23 +97,23 @@ func Train(weights string, dataset dataset.Dataset) error {
 
 			var xVal, yVal tensor.Tensor
 			if xVal, err = inputs.Slice(sli{start, end}); err != nil {
-				return fmt.Errorf("Unable to slice x: %s", err)
+				return fmt.Errorf("unable to slice x: %s", err)
 			}
 			if err = xVal.(*tensor.Dense).Reshape(bs, 1, 28, 28); err != nil {
-				return fmt.Errorf("Unable to reshape: %s", err)
+				return fmt.Errorf("unable to reshape: %s", err)
 			}
 
 			if yVal, err = targets.Slice(sli{start, end}); err != nil {
-				return fmt.Errorf("Unable to slice y: %s", err)
+				return fmt.Errorf("unable to slice y: %s", err)
 			}
 
 			gorgonia.Let(x, xVal)
 			gorgonia.Let(y, yVal)
 			if err := vm.RunAll(); err != nil {
-				return fmt.Errorf("Failed at epoch %d: %s", i, err)
+				return fmt.Errorf("failed at epoch %d: %s", i, err)
 			}
 			if err := solver.Step(gorgonia.NodesToValueGrads(m.learnables())); err != nil {
-				return fmt.Errorf("Unable to solve: %s", err)
+				return fmt.Errorf("unable to solve: %s", err)
 			}
 			vm.Reset()
 			bar.Increment()
@@ -139,10 +138,11 @@ func Train(weights string, dataset dataset.Dataset) error {
 		if err != nil {
 			return err
 		}
-		log.Println()
-		log.Printf("pred = %v\nvals = %v\nscore = %f\n\n", pred, vals, score)
+		bar.Finish()
+		log.Printf("pred = %v", pred)
+		log.Printf("vals = %v", vals)
+		log.Printf("score = %f", score)
 	}
-	bar.Finish()
 
 	return nil
 }
