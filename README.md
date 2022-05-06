@@ -25,5 +25,5 @@ make train
 Test with some sudoku image:
 ```shell
 go run main.go decode -w trained.bin -f my_sudoku_image.jpg
-go run main.go decode -w trained.bin -f my_sudoku_image --display
+go run main.go decode -w trained.bin -f my_sudoku_image.jpg --display
 ```
