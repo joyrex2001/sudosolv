@@ -118,7 +118,9 @@ func Train(weights string, dataset dataset.Dataset) error {
 			vm.Reset()
 			bar.Increment()
 		}
-		log.Printf("Epoch %d | cost %v", i, costVal)
+		bar.Finish()
+
+		log.Printf("epoch %d | cost %v", i, costVal)
 
 		// save newly learned weights
 		if err := m.save(weights); err != nil {
@@ -138,7 +140,7 @@ func Train(weights string, dataset dataset.Dataset) error {
 		if err != nil {
 			return err
 		}
-		bar.Finish()
+
 		log.Printf("pred = %v", pred)
 		log.Printf("vals = %v", vals)
 		log.Printf("score = %f", score)

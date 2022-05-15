@@ -102,5 +102,5 @@ func isBlankImage(image []byte) bool {
 	for _, h := range image {
 		sum += int(h)
 	}
-	return sum < 10*255 // less than 10 intense bright pixels within the 28x28
+	return sum < 30*255 // less than 30 intense bright pixels within the 28x28
 }

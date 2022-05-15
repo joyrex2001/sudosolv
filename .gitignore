@@ -19,3 +19,6 @@ freefont-ttf-*
 fonts-all
 fonts-normal
 sudosolv
+v2_*.tar.bz2
+dataset/sudoku/mixed
+dataset/sudoku/v2_*

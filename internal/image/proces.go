@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	width     = 540 // easy to divide by 9
-	threshold = 450 // 450 seems to work fine
+	width = 540 // easy to divide by 9
 )
 
 // PuzzleImage is an object that represents a puzzle image.
@@ -38,6 +37,7 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 1)
 	// display(wb)
 
+	threshold := float64(gr.Rows() / 3) // at least 1/3 of the image height
 	cn := gocv.FindContours(wb, gocv.RetrievalList, gocv.ChainApproxSimple)
 	box := gocv.NewPointVector()
 	for i := 0; i < cn.Size(); i++ {
@@ -51,7 +51,7 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 	// bx.Append(box)
 	// logPointVector(box)
 	// gocv.DrawContours(&img, bx, -1, color.RGBA{0, 255, 0, 0}, 10)
-	// Display(img)
+	// display(img)
 
 	tb := gocv.NewPointVector()
 	tb.Append(image.Point{0, 0})
@@ -88,18 +88,22 @@ func getSudokuCellArea(x, y int) image.Rectangle {
 func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
 	area := getSudokuCellArea(x, y)
 	crop := pi.img.Region(area)
+	// display(crop)
 
 	// crop number
 	gr := gocv.NewMat()
 	thres := gocv.NewMat()
 	gocv.CvtColor(crop, &gr, gocv.ColorBGRToGray)
-	gocv.AdaptiveThreshold(gr, &thres, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 8)
+	gocv.AdaptiveThreshold(gr, &thres, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 9, 1)
+	// display(thres)
 	bx := biggestBoundingBox(thres)
-	if bx.Size().X*bx.Size().Y > 10 {
-		// fmt.Printf("bx=%v\n", bx)
-		// bx = addMargin(bx, 1)
-		crop = crop.Region(bx)
+	if bx.Size().X < 20 && bx.Size().Y < 20 {
+		return make([]byte, 28*28)
 	}
+
+	// fmt.Fprintf(os.Stderr, "bx=%v\n", bx)
+	// bx = addMargin(bx, 1)
+	crop = crop.Region(bx)
 
 	// convert to hard black and white
 	wb := gocv.NewMat()

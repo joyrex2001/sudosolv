@@ -3,15 +3,17 @@ run:
 
 train:
 	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
-	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
-	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
 	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal --rndsize
 	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal --noise
 	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal
 	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal --rndsize --noise
 	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all
 	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all --rndsize
-	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all --noise	
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all --noise
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal
+	go run main.go train mnist -w trained.bin --epochs 5 --dataloc ./dataset/mnist/
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-all
+	go run main.go train generated -w trained.bin --size 30000 --epochs 5 --dataloc ./dataset/fonts/fonts-normal
 
 build:
 	go build -o sudosolv

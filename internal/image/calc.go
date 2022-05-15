@@ -120,10 +120,16 @@ func biggestBoundingBox(img gocv.Mat) image.Rectangle {
 // addMargin adds given margin to the provided rectangle, making
 // the rectangle area a bit bigger.
 func addMargin(box image.Rectangle, margin int) image.Rectangle {
+	if box.Min.X < margin {
+		box.Min.X = margin
+	}
+	if box.Min.Y < margin {
+		box.Min.Y = margin
+	}
 	return image.Rect(
 		box.Min.X-margin,
 		box.Min.Y-margin,
-		box.Max.X+margin,
-		box.Max.Y+margin,
+		box.Max.X+0,
+		box.Max.Y+0,
 	)
 }
