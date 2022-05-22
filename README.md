@@ -27,3 +27,8 @@ Test with some sudoku image:
 go run main.go decode -w trained.bin -f my_sudoku_image.jpg
 go run main.go decode -w trained.bin -f my_sudoku_image.jpg --display
 ```
+
+Or run the webserver and play around on http://localhost:8080:
+```shell
+go run main.go server -w trained.bin 
+```
