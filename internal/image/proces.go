@@ -25,6 +25,13 @@ func NewPuzzleImage(file string) *PuzzleImage {
 // GetPuzzle will return a OpenCV matrix with the biggest square of the
 // given OpenCV matrix, assuming it's the Sudoku puzzle.
 func getPuzzle(img gocv.Mat) gocv.Mat {
+	threshold := float64(img.Rows() / 3) // at least 1/3 of the image height
+	return getBiggestBox(img, threshold)
+}
+
+// getBiggestBox will return a OpenCV matrix containing the biggest square
+// which also matches the given threshold.
+func getBiggestBox(img gocv.Mat, threshold float64) gocv.Mat {
 	gr := gocv.NewMat()
 	gocv.CvtColor(img, &gr, gocv.ColorBGRToGray)
 
@@ -34,10 +41,9 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 
 	wb := gocv.NewMat()
 	gocv.Threshold(gr, &wb, 127, 255, 0)
-	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 7, 1)
+	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 9, 1)
 	// display(wb)
 
-	threshold := float64(gr.Rows() / 3) // at least 1/3 of the image height
 	cn := gocv.FindContours(wb, gocv.RetrievalList, gocv.ChainApproxSimple)
 	box := gocv.NewPointVector()
 	for i := 0; i < cn.Size(); i++ {

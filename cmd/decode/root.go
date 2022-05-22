@@ -3,10 +3,11 @@ package decode
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/joyrex2001/sudosolv/internal/image"
 	"github.com/joyrex2001/sudosolv/internal/numocr/classifier"
-
-	"github.com/spf13/cobra"
+	"github.com/joyrex2001/sudosolv/internal/sudoku"
 )
 
 var Cmd = &cobra.Command{
@@ -29,7 +30,7 @@ func decodeImage(cmd *cobra.Command, args []string) {
 
 	inf, err := classifier.NewInference(weights)
 	if err != nil {
-		fmt.Printf("error = %s\n", err)
+		fmt.Printf("error instantiating classifier: %s\n", err)
 		return
 	}
 
@@ -39,25 +40,16 @@ func decodeImage(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	for y := 0; y < 9; y++ {
-		if y != 0 && y%3 == 0 {
-			fmt.Printf("-----------+-----------+-----------\n")
-		}
-		for x := 0; x < 9; x++ {
-			if x != 0 && x%3 == 0 {
-				fmt.Printf("  |")
-			}
-			cel := img.GetSudokuCell(x, y)
-			res, _, err := inf.Predict(cel)
-			if err != nil {
-				fmt.Printf("error = %s\n", err)
-			}
-			if res < 1 {
-				fmt.Printf("   ")
-			} else {
-				fmt.Printf("%3d", res)
-			}
-		}
-		fmt.Printf("\n")
+	sd, err := sudoku.NewSudokuFromImage(img, inf)
+	if err != nil {
+		fmt.Printf("error decoding sudoku: %s\n", err)
+		return
+	}
+	if sd.IsValid() {
+		sd.Solve()
+		fmt.Printf("%s", sd)
+	} else {
+		fmt.Printf("sudoku is invalid!\n\n")
+		fmt.Printf("%s", sd)
 	}
 }
