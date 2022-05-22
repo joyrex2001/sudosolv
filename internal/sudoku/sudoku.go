@@ -12,9 +12,10 @@ type Sudoku struct {
 	Cell [][]int `json:"cell"`
 }
 
-// NewSudokuFromImage will instantiate a new Sudoku object given a PuzzleImage object
-// and a numocr classifier Inference object to decode the image.
-func NewSudokuFromImage(img *image.PuzzleImage, inf *classifier.Inference) (*Sudoku, error) {
+// NewSudokuFromPuzzleImage will instantiate a new Sudoku object given a
+// PuzzleImage object and a numocr classifier Inference object to decode
+// the image.
+func NewSudokuFromPuzzleImage(img *image.PuzzleImage, inf *classifier.Inference) (*Sudoku, error) {
 	cell := make([][]int, 9)
 	for x := 0; x < 9; x++ {
 		cell[x] = make([]int, 9)
@@ -112,7 +113,7 @@ func (sd *Sudoku) String() string {
 				out += fmt.Sprintf("%3d", res)
 			}
 		}
-		out += "\n"
+		out += "  \n"
 	}
 	return out
 }

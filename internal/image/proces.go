@@ -1,6 +1,7 @@
 package image
 
 import (
+	"fmt"
 	"image"
 
 	"gocv.io/x/gocv"
@@ -17,9 +18,19 @@ type PuzzleImage struct {
 
 // NewPuzzleImage will return a PuzzleImage object based on the
 // given image file.
-func NewPuzzleImage(file string) *PuzzleImage {
+func NewPuzzleImage(file string) (*PuzzleImage, error) {
 	img := gocv.IMRead(file, gocv.IMReadColor)
-	return &PuzzleImage{img: getPuzzle(img)}
+	return &PuzzleImage{img: getPuzzle(img)}, nil
+}
+
+// NewPuzzleImageFromReader will return a PuzzleImage object based
+// on the given raw image data.
+func NewPuzzleImageFromImage(imgraw image.Image) (*PuzzleImage, error) {
+	img, err := gocv.ImageToMatRGBA(imgraw)
+	if err != nil {
+		return nil, fmt.Errorf("error processing image: %s", err)
+	}
+	return &PuzzleImage{img: getPuzzle(img)}, nil
 }
 
 // GetPuzzle will return a OpenCV matrix with the biggest square of the

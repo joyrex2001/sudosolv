@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joyrex2001/sudosolv/cmd/decode"
+	"github.com/joyrex2001/sudosolv/cmd/server"
 	"github.com/joyrex2001/sudosolv/cmd/train"
 
 	"github.com/spf13/cobra"
@@ -18,6 +19,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(train.Cmd)
 	rootCmd.AddCommand(decode.Cmd)
+	rootCmd.AddCommand(server.Cmd)
 }
 
 func Execute() {

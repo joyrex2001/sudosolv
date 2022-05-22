@@ -34,13 +34,13 @@ func decodeImage(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	img := image.NewPuzzleImage(file)
+	img, _ := image.NewPuzzleImage(file)
 	if display {
 		img.Display()
 		return
 	}
 
-	sd, err := sudoku.NewSudokuFromImage(img, inf)
+	sd, err := sudoku.NewSudokuFromPuzzleImage(img, inf)
 	if err != nil {
 		fmt.Printf("error decoding sudoku: %s\n", err)
 		return

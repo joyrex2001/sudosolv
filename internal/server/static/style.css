@@ -1,0 +1,23 @@
+.hacker {
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+
+.logo {
+    font-size: 40px;
+    background-color: black;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.error {
+    background-color: black;
+    color: red;
+}
+
+.solution {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 1em 0;
+}
