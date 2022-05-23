@@ -20,8 +20,9 @@ import (
 var assets embed.FS
 
 type indexTemplate struct {
-	Sudoku string
-	Error  string
+	Sudoku   string
+	Solution string
+	Error    string
 }
 
 // ListenAndServe will start the webserver and waits forever, unless
@@ -34,10 +35,7 @@ func ListenAndServe(weights, port string) error {
 
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.FileServer(http.FS(assets)))
-	mux.HandleFunc("/decode", decode(inf))
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, "static/index.tmpl", &indexTemplate{})
-	})
+	mux.HandleFunc("/", decode(inf))
 
 	return http.ListenAndServe(port, mux)
 }
@@ -45,6 +43,11 @@ func ListenAndServe(weights, port string) error {
 // decode implements the /decode url
 func decode(inf *classifier.Inference) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			renderTemplate(w, "static/index.tmpl", &indexTemplate{})
+			return
+		}
+
 		if err := r.ParseMultipartForm(5 << 20); err != nil { // 5MB
 			errorPage(w, err)
 			return
@@ -75,15 +78,17 @@ func decode(inf *classifier.Inference) func(http.ResponseWriter, *http.Request) 
 			return
 		}
 
+		msg := ""
 		res := ""
+		dec := sd.String()
 		if sd.IsValid() {
 			sd.Solve()
 		} else {
-			res += "sudoku is invalid!\n\n"
+			msg = "sudoku is invalid!\n\n"
 		}
-		res += sd.String()
+		res = sd.String()
 
-		renderTemplate(w, "static/index.tmpl", &indexTemplate{Sudoku: res})
+		renderTemplate(w, "static/index.tmpl", &indexTemplate{Sudoku: dec, Solution: res, Error: msg})
 	}
 }
 

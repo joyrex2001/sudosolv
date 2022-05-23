@@ -46,6 +46,7 @@ func decodeImage(cmd *cobra.Command, args []string) {
 		return
 	}
 	if sd.IsValid() {
+		fmt.Printf("%s\n", sd)
 		sd.Solve()
 		fmt.Printf("%s", sd)
 	} else {

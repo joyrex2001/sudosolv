@@ -15,7 +15,7 @@
     color: red;
 }
 
-.solution {
+.sudoku {
     display: block;
     font-family: monospace;
     white-space: pre;
