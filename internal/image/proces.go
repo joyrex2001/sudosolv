@@ -3,6 +3,9 @@ package image
 import (
 	"fmt"
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
 
 	"gocv.io/x/gocv"
 )
@@ -25,11 +28,17 @@ func NewPuzzleImage(file string) (*PuzzleImage, error) {
 
 // NewPuzzleImageFromReader will return a PuzzleImage object based
 // on the given raw image data.
-func NewPuzzleImageFromImage(imgraw image.Image) (*PuzzleImage, error) {
+func NewPuzzleImageFromReader(r io.ReadSeeker) (*PuzzleImage, error) {
+	imgraw, _, err := image.Decode(r)
+	if err != nil {
+		return nil, err
+	}
 	img, err := gocv.ImageToMatRGBA(imgraw)
 	if err != nil {
 		return nil, fmt.Errorf("error processing image: %s", err)
 	}
+	r.Seek(0, io.SeekStart)
+	img = fixOrientation(img, getOrientation(r))
 	return &PuzzleImage{img: getPuzzle(img)}, nil
 }
 
@@ -44,13 +53,16 @@ func getPuzzle(img gocv.Mat) gocv.Mat {
 // which also matches the given threshold.
 func getBiggestBox(img gocv.Mat, threshold float64) gocv.Mat {
 	gr := gocv.NewMat()
+	defer gr.Close()
 	gocv.CvtColor(img, &gr, gocv.ColorBGRToGray)
 
 	bl := gocv.NewMat()
+	defer bl.Close()
 	gocv.GaussianBlur(gr, &bl, image.Point{}, 5, 5, gocv.BorderDefault)
 	// display(bl)
 
 	wb := gocv.NewMat()
+	defer wb.Close()
 	gocv.Threshold(gr, &wb, 127, 255, 0)
 	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 9, 1)
 	// display(wb)
@@ -109,7 +121,9 @@ func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
 
 	// crop number
 	gr := gocv.NewMat()
+	defer gr.Close()
 	thres := gocv.NewMat()
+	defer thres.Close()
 	gocv.CvtColor(crop, &gr, gocv.ColorBGRToGray)
 	gocv.AdaptiveThreshold(gr, &thres, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 9, 1)
 	// display(thres)
@@ -124,6 +138,7 @@ func (pi *PuzzleImage) GetSudokuCell(x, y int) []byte {
 
 	// convert to hard black and white
 	wb := gocv.NewMat()
+	defer wb.Close()
 	gocv.CvtColor(crop, &gr, gocv.ColorBGRToGray)
 	gocv.AdaptiveThreshold(gr, &wb, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 31, 10)
 

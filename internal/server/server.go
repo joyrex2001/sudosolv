@@ -2,14 +2,9 @@ package server
 
 import (
 	"embed"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-
-	goimage "image"
-	_ "image/jpeg"
-	_ "image/png"
 
 	"github.com/joyrex2001/sudosolv/internal/image"
 	"github.com/joyrex2001/sudosolv/internal/numocr/classifier"
@@ -60,13 +55,7 @@ func decode(inf *classifier.Inference) func(http.ResponseWriter, *http.Request) 
 		}
 		defer data.Close()
 
-		imgraw, _, err := goimage.Decode(data)
-		if err != nil {
-			errorPage(w, fmt.Errorf("invalid image: %s", err))
-			return
-		}
-
-		img, err := image.NewPuzzleImageFromImage(imgraw)
+		img, err := image.NewPuzzleImageFromReader(data)
 		if err != nil {
 			errorPage(w, err)
 			return
