@@ -1,5 +1,5 @@
 run:
-	go run main.go 
+	go run main.go server -w trained.bin
 
 train:
 	go run main.go train generated -w trained.bin --size 10000 --epochs 10 --dataloc ./dataset/fonts/fonts-normal
@@ -17,6 +17,9 @@ train:
 
 build:
 	go build -o sudosolv
+
+docker:
+	docker build . -t sudosolv
 
 clean:
 	rm -f sudosolv trained.bin
