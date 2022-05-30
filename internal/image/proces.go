@@ -6,6 +6,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
+	"os"
 
 	"gocv.io/x/gocv"
 )
@@ -22,8 +23,16 @@ type PuzzleImage struct {
 // NewPuzzleImage will return a PuzzleImage object based on the
 // given image file.
 func NewPuzzleImage(file string) (*PuzzleImage, error) {
+	if _, err := os.Stat(file); err != nil {
+		return nil, err
+	}
 	img := gocv.IMRead(file, gocv.IMReadColor)
-	return &PuzzleImage{img: getPuzzle(img)}, nil
+	defer img.Close()
+	pimg, err := getPuzzle(img)
+	if err != nil {
+		return nil, err
+	}
+	return &PuzzleImage{img: pimg}, nil
 }
 
 // NewPuzzleImageFromReader will return a PuzzleImage object based
@@ -39,19 +48,23 @@ func NewPuzzleImageFromReader(r io.ReadSeeker) (*PuzzleImage, error) {
 	}
 	r.Seek(0, io.SeekStart)
 	img = fixOrientation(img, getOrientation(r))
-	return &PuzzleImage{img: getPuzzle(img)}, nil
+	pimg, err := getPuzzle(img)
+	if err != nil {
+		return nil, err
+	}
+	return &PuzzleImage{img: pimg}, nil
 }
 
 // GetPuzzle will return a OpenCV matrix with the biggest square of the
 // given OpenCV matrix, assuming it's the Sudoku puzzle.
-func getPuzzle(img gocv.Mat) gocv.Mat {
+func getPuzzle(img gocv.Mat) (gocv.Mat, error) {
 	threshold := float64(img.Rows() / 3) // at least 1/3 of the image height
 	return getBiggestBox(img, threshold)
 }
 
 // getBiggestBox will return a OpenCV matrix containing the biggest square
 // which also matches the given threshold.
-func getBiggestBox(img gocv.Mat, threshold float64) gocv.Mat {
+func getBiggestBox(img gocv.Mat, threshold float64) (gocv.Mat, error) {
 	gr := gocv.NewMat()
 	defer gr.Close()
 	gocv.CvtColor(img, &gr, gocv.ColorBGRToGray)
@@ -76,6 +89,10 @@ func getBiggestBox(img gocv.Mat, threshold float64) gocv.Mat {
 		}
 	}
 
+	if box.Size() != 4 {
+		return img, fmt.Errorf("could not detect a sudoku puzzle")
+	}
+
 	// bx := gocv.NewPointsVector()
 	// bx.Append(box)
 	// logPointVector(box)
@@ -93,7 +110,7 @@ func getBiggestBox(img gocv.Mat, threshold float64) gocv.Mat {
 	gocv.WarpPerspective(img, &crop, pt, image.Point{width, width})
 	// display(crop)
 
-	return crop
+	return crop, nil
 }
 
 // Display will display the puzzle data and wait until a key has

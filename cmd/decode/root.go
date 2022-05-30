@@ -34,7 +34,11 @@ func decodeImage(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	img, _ := image.NewPuzzleImage(file)
+	img, err := image.NewPuzzleImage(file)
+	if err != nil {
+		fmt.Printf("error retrieving puzzle: %s\n", err)
+		return
+	}
 	if display {
 		img.Display()
 		return
