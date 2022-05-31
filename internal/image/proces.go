@@ -42,17 +42,26 @@ func NewPuzzleImageFromReader(r io.ReadSeeker) (*PuzzleImage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	img, err := gocv.ImageToMatRGBA(imgraw)
 	if err != nil {
 		return nil, fmt.Errorf("error processing image: %s", err)
 	}
+	defer img.Close()
+
 	r.Seek(0, io.SeekStart)
 	img = fixOrientation(img, getOrientation(r))
 	pimg, err := getPuzzle(img)
 	if err != nil {
 		return nil, err
 	}
+
 	return &PuzzleImage{img: pimg}, nil
+}
+
+// Dispose will clean up any dangling references of the image.
+func (pi *PuzzleImage) Dispose() {
+	pi.img.Close()
 }
 
 // GetPuzzle will return a OpenCV matrix with the biggest square of the

@@ -60,6 +60,7 @@ func decode(inf *classifier.Inference) func(http.ResponseWriter, *http.Request) 
 			errorPage(w, err)
 			return
 		}
+		defer img.Dispose()
 
 		sd, err := sudoku.NewSudokuFromPuzzleImage(img, inf)
 		if err != nil {
